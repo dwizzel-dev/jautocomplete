@@ -32,10 +32,8 @@ function JServer(){
 		this.maxRows = 20;
 		this.serverFormProcess = this.args.serverFormProcess;
 		//on va chercher la database	
-		this.getDB();
-		
-		return this;
-		};
+		return new Promise(this.getDB.bind(this));
+	};
 
 	//---------------------------------------------------------------------
 	this.process = function(obj){
@@ -45,7 +43,7 @@ function JServer(){
 			obj.callerclass.commCallBackFunc(obj.pid, {msgerrors:'Local DB "' + this.urlDB + '" not available'}, obj.extraobj);
 			//get out
 			return false;
-			}		
+		}		
 		switch(obj.section){
 			case 'search':
 				this.processSearch(obj);
@@ -54,9 +52,9 @@ function JServer(){
 				//default error
 				obj.callerclass.commCallBackFunc(obj.pid, {msgerrors:'Section not available'}, obj.extraobj);	
 				break;
-			}
+		}
 		//
-		};
+	};
 
 	//---------------------------------------------------------------------
 	this.processSearch = function(obj){
@@ -302,7 +300,7 @@ function JServer(){
 
 	//---------------------------------------------------------------------
 	//load the db lang file
-	this.getDB = function(){
+	this.getDB = function(resolve, reject){
 		//on send
 		$.ajax({
 			timestamp: Date.now(),
@@ -330,10 +328,12 @@ function JServer(){
 				//
 				this.parentclass.debug(this.url + ' loaded');
 				this.parentclass.setDB(obj);
+				resolve();
 				},
 			error: function(dataRtn, ajaxOptions, thrownError){
 				//
 				this.parentclass.debug(this.url + ' NOT loaded');
+				reject();
 				}	
 			});	
 

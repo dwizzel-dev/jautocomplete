@@ -16,17 +16,15 @@ function JComm(){
 	this.className = arguments.callee.name;
 	this.args = arguments[0];
 		
-	
 	//---------------------------------------------------------------------
 	this.init = function(){
 		//
 		this.jlang = this.args.jlang;
-		this.mainAppz = this.args.mainappz;	
+		this.jserver = this.args.jserver;	
 		this.pid = 100;
 		this.service = this.args.serverService;	
 		this.sessionId = this.args.sessionId;
 		this.localeLang = this.args.localeLang;
-		return this;
 	};
 	
 	//----------------------------------------------------------------------------------------------------------------------*
@@ -59,16 +57,16 @@ function JComm(){
 		var timestamp = Date.now();
 		var pid = this.getTicket();
 		//en locale uniquement on va le triater avec un serveur locale a la place
-		if(typeof(this.mainAppz.jserver) != 'undefined'){
+		if(this.jserver){
 			//settimeout pour avoir un delai car doit ramenr un pid avant e le traiter
-			setTimeout(this.mainAppz.jserver.process.bind(this.mainAppz.jserver, {
+			setTimeout(this.jserver.process.bind(this.jserver, {
 				section: section,
 				service: service,
 				data: data,
 				extraobj: extraObj,
 				pid: pid,
 				callerclass:callerClass,
-			}), 0);
+			}));
 			//on load la db
 			return pid;
 		}

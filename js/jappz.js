@@ -25,11 +25,17 @@ function JAppz(){
 		this.serverImagePath = this.args.serverImagePath;
 		this.serverFormProcess = this.args.serverFormProcess;
 		//lang
-		this.jlang = new JLang({
+		(this.jlang = new JLang({
 			debug: this.args.debug,
 			path: this.args.serverCashPath,
 			lang: this.args.localeLang,
-		}).init();
+		})).init()
+			.then(function(res){
+				this.createSearchInterface();
+			}.bind(this))
+			.catch(function(err){
+				console.error('No lang file, just quiting!')
+			});
 		//utils
 		this.jutils = new JUtils({
 			debug: this.args.debug,	
@@ -38,23 +44,26 @@ function JAppz(){
 		//server
 		if(this.args.isLocaleDb){
 			//otherwise the jcomm will get it from the server
-			this.jserver = new JServer({
+			(this.jserver = new JServer({
 				debug: this.args.debug,
 				jlang: this.jlang,
 				path: this.args.serverCashPath, 
 				lang: this.args.localeLang, 
 				serverFormProcess: this.serverFormProcess,
-			}).init();
+			})).init()
+				.catch(function(err){
+					console.error('No DB File file, just quiting!')
+				});
 		}
 		//comm obj	
-		this.jcomm = new JComm({
+		(this.jcomm = new JComm({
 			debug: this.args.debug,
 			jlang: this.jlang,
+			jserver: (typeof this.jserver !== 'undefined') ? this.jserver : false,
 			serverService: this.args.serverService,
 			sessionId: this.args.sessionId,
-			localeLang: this.args.localeLang,
-			mainappz:this
-		}).init();
+			localeLang: this.args.localeLang
+		})).init();
 		//le search	
 		this.jsearch = new JSearch({
 			debug: this.args.debug,
@@ -87,20 +96,8 @@ function JAppz(){
 		}		
 		//resize event
 		$(window).resize(this.resizeAllElements.bind(this));
-		//le event
-		$(document).bind('jlang.Ready', this.jlangReady.bind(this, this.uid));
-	};
-		
-	//----------------------------------------------------------
-	this.jlangReady = function(){
-		var uid = arguments[0];
-		if(uid == this.uid){
-			//creer le container du autocomplete
-			this.createSearchInterface();
-		}
 	};
 	
-
 	//----------------------------------------------------------
 	this.resizeAllElements = function(){ 
 		// moins la scrollbar quand pas en mode mobile	

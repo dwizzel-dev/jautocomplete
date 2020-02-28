@@ -15,14 +15,13 @@ function JLang(){
 
 	this.className = arguments.callee.name;
 	this.args = arguments[0];
+	//this.ready = this.args.ready;
 	
 	//----------------------------------------------------------
 	this.init = function(){
-		this.loaded = false;
 		this.urlDB = this.args.path + 'lang.' + this.args.lang + '.data';
 		this.db = false;
-		this.getDB();	
-		return this;
+		return new Promise(this.getDB.bind(this));
 	};		
 		
 	//----------------------------------------------------------
@@ -31,20 +30,8 @@ function JLang(){
 	};	
 		
 	//----------------------------------------------------------
-	this.isLoaded = function(){
-		return this.loaded;
-	};
-		
-	//----------------------------------------------------------
-	this.isReady = function(bReady){
-		this.loaded = bReady;
-		//on call un event pour le event listener de la appz
-		$(document).trigger('jlang.Ready', this.loaded);
-	};
-
-	//----------------------------------------------------------
 	//load the db lang file
-	this.getDB = function(){
+	this.getDB = function(resolve, reject){
 		$.ajax({
 			timestamp: Date.now(),
 			parentclass: this,
@@ -71,12 +58,11 @@ function JLang(){
 				//
 				this.parentclass.debug(this.url + ' loaded');
 				this.parentclass.setDB(obj);
-				this.parentclass.isReady(true);
-					
+				resolve();
 			},
 			error: function(dataRtn, ajaxOptions, thrownError){
 				//
-				this.parentclass.isReady(false);
+				reject();
 			}	
 		});	
 

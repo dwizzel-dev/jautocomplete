@@ -40,15 +40,11 @@ window.ADebug = window.ADebug || function (){
             console.log(err, arguments[0]);
         });
         //will reject the debug methods
-        //and the setted hook above function too
         this.rejectClassMethod();
+
     }else{
-        //fake them just in case
-        this.setClassHook = 
-        this.warn =
-        this.debug = 
-        this.error = 
-            function(){};
+        //just fake all methods
+        this.setClassHook = this.warn = this.debug = this.error = function(){};
     }
     
 };
