@@ -52,7 +52,7 @@ define('DB_SESS_PREFIX', '');/*the table prefix*/
 require_once(SITE_DEFINE_EDITABLE);
 
 // ABSOLUTE PATH
-define('DIR', 'C:\dwizzel-local-server\code\www\github.com\dwizzel-dev\local-autocomplete\_autocomplete\\');/*compltete directory of the web site*/
+define('DIR', 'C:/dwizzel-local-server/code/www/github.com/dwizzel-dev/jautocomplete/');/*compltete directory of the web site*/
 define('DIR_CSS', DIR.'css/'.TEMPLATE_NAME.'/');
 define('DIR_INC', DIR.'inc/');
 define('DIR_CLASS', DIR.'class/');
@@ -74,7 +74,7 @@ define('DIR_RENDER_EX_PHP', DIR_CACHE.'exercises/');
 define('DIR_RENDER_CAT_PHP', DIR_CACHE.'categories/');
 define('DIR_RENDER_KEYWORD_PHP', DIR_CACHE.'keywords/');
 // RELATIVE PATH
-define('PATH_WEB', '/_autocomplete/');/*the base web site path*/
+define('PATH_WEB', '/');/*the base web site path*/
 define('PATH_WEB_SECURE', 'https://www.blank-site.com/');/*the secure address of the site*/
 define('PATH_WEB_NORMAL', 'http://www.blank-site.com/');/*the normal address of the site*/
 
