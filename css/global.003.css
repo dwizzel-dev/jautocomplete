@@ -46,7 +46,7 @@ body{
 
 @media(max-width:767px) {
 	.frontpage-block{
-		height: 100px;
+		height: 70px;
 		margin: 10px;
    		width: calc(100% - 20px);
 	}
@@ -54,16 +54,12 @@ body{
 
 
 @media(min-width:1024px) and (max-width:1279px){
-	.frontpage-block{
-		height: 160px;
-	}
+	
 }
 
 
 @media(min-width:1280px){
-	.frontpage-block{
-		height: 160px;
-	}
+	
 }
 
 

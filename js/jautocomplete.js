@@ -48,14 +48,6 @@ function JAutoComplete(){
 		this.firstLiWord = '';	
 		//la derniere string
 		this.currentSearchWord = '';
-		//vu que rien n'est cherche car il se remplit auto il faut setter les params de base
-		//pour que le press <ENTER> fonctionne		
-		if(typeof(this.args.word)){
-			this.currentSearchWord = this.args.word;
-			this.lastSearchString = this.args.word;	
-			this.bFoundAutoCompleteMatch = true;
-			this.bHaveAutoCompleteResult = true;
-			}
 		//le contenue values du LI sur lequel il clique ou press enter
 		this.focusedKwIds = '';		
 		//min-max
@@ -97,6 +89,16 @@ function JAutoComplete(){
 			'1': 'keywords',
 			'2': 'short title',
 			};
+		//vu que rien n'est cherche car il se remplit auto il faut setter les params de base
+		//pour que le press <ENTER> fonctionne
+		//@DWIZZEL: dont work for now		
+		if(typeof(this.args.word) !== 'undefined' && this.args.word !== ''){
+			//this.currentSearchWord = this.args.word;
+			//this.lastSearchString = this.args.word;	
+			//this.bFoundAutoCompleteMatch = true;
+			//this.bHaveAutoCompleteResult = true;
+			}
+			
 		//	
 		return this;	
 		};

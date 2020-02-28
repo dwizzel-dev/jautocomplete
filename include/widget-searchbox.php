@@ -9,6 +9,9 @@
 
 $tmpStrWidgetNameUID = 'widget-searchbox-exercises-'.rand();
 
+$getQuerySearch = isset($_GET['q']) ? $_GET['q'] : '';
+
+
 ?>
 <!-- loaded css -->
 <link rel="stylesheet" href="<?php echo PATH_CSS.'searchbox-exercises.'.DEFAULT_VERSIONING.'.css'; ?>" type="text/css">
@@ -42,8 +45,8 @@ jQuery(document).ready(function($){
 		serverCashPath: '<?php echo PATH_CACHE_JS; ?>',
 		serverImagePath: '<?php echo PATH_IMAGE; ?>',
 		mainContainer: '.frontpage-block',
-		currentSearchedWord: '',
-		focusOnInput: true,	
+		currentSearchedWord: '<?php echo $getQuerySearch; ?>',
+		focusOnInput: false,	
 		searchContainer: '.<?php echo $tmpStrWidgetNameUID; ?>',
 	})).init();
 });	

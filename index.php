@@ -20,7 +20,11 @@ require_once('define.php');
 error_reporting(ERROR_LEVEL);
 
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en_US">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <meta charset="utf-8">
+    <title>jautocomplete</title>
     <body>
         <div class="frontpage-block search-box-squeeze">
             <?php require_once(DIR_INCLUDE.'widget-searchbox.php'); ?>
