@@ -12,34 +12,33 @@ Notes:
     
 function JUtils(){
 	
+	//extend abstract methods
+	$.extend(this, new ADebug(arguments[0].debug));
+
 	this.className = arguments.callee.name;
 	this.args = arguments[0];
-	this.jdebug = this.args.jdebug;
+		
 	
 	//---------------------------------------------------------------------
 	this.init = function(){
-		this.debug('init()', this.args);
-		//
 		this.jlang = this.args.jlang;
 		//
 		return this;
-		};	
+	};	
 	
 	//----------------------------------------------------------------------------------------------	
 	this.contains = function(b, arr){
-		this.debug('contains()', b, arr);		
 		var i = arr.length;
 		while(i--){
 			if(b === arr[i]){
 				return true;		
-				}
 			}
-		return false;
 		}
+		return false;
+	}
 	
 	//----------------------------------------------------------------------------------------------	
 	this.countArray = function(arr){
-		this.debug('countArray()', arr);	
 		var i = 0;
 		for(var o in arr){
 			i++;
@@ -140,15 +139,11 @@ function JUtils(){
 		return str.charAt(0).toUpperCase() + str.slice(1);
 		}
 
-	//----------------------------------------------------------------------------------------------------------------------*
-	this.debug = function(){
-		if(typeof(this.jdebug) == 'object'){
-			if(arguments.length == 1){	
-				this.jdebug.show(this.className + '::' + arguments[0]);
-			}else{
-				this.jdebug.showObject(this.className + '::' + arguments[0], arguments);
-				}
-			}
-		};	
+
+	//----------------------------------------------------------
+	//inject code in them for debugging
+	this.setClassHook();	
 		
-	}
+}
+
+//EOF

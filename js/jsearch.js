@@ -9,14 +9,16 @@ Version: V.1.0 BUILD 001
 //----------------------------------------------------------------------------------------------------------------------
     
 function JSearch(){
+
+	//extend abstract methods
+	$.extend(this, new ADebug(arguments[0].debug));
 	
 	this.className = arguments.callee.name;
 	this.args = arguments[0];
-	this.jdebug = this.args.jdebug;
+	
 	
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.init = function(){
-		this.debug('init()', this.args);
 		//
 		this.jlang = this.args.jlang;
 		this.jcomm = this.args.jcomm;
@@ -35,7 +37,6 @@ function JSearch(){
 	
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.fetchAutoCompleteData = function(str, params, strKwType){
-		this.debug('fetchAutoCompleteData()', str, params, strKwType);
 		//
 		var objServer = {
 			word: str,
@@ -56,7 +57,6 @@ function JSearch(){
 		
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.getExerciceListingByWords = function(str){
-		this.debug('getExerciceListingByWords()', str);
 		
 		//rien a chercher on s'en va
 		if(str == ''){
@@ -80,7 +80,6 @@ function JSearch(){
 		
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.getExerciceListingByKeywordIds = function(strIds, str){
-		this.debug('getExerciceListingByKeywordIds()', strIds, str);
 		
 		//rien a chercher on s'en va
 		if(strIds == ''){
@@ -107,7 +106,6 @@ function JSearch(){
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.getExerciceListingByKeywordIdsForPreview = function(params, strIds, strLiId){
-		this.debug('getExerciceListingByKeywordIdsForPreview()', params, strIds, strLiId);
 		
 		//rien a chercher on s'en va
 		if(strIds == ''){
@@ -131,7 +129,6 @@ function JSearch(){
 		
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.commCallBackFunc = function(pid, obj, extraObj){
-		this.debug('commCallBackFunc()', pid, obj, extraObj);
 		//	
 		if(typeof(obj.msgerrors) == 'string' && obj.msgerrors != ''){
 			this.debug(obj.msgerrors);
@@ -170,7 +167,6 @@ function JSearch(){
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.routineOnListingResult = function(data){
-		this.debug('routineOnListingResult()');
 		//
 		this.clear();
 		//real data
@@ -181,7 +177,6 @@ function JSearch(){
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.clear = function(){
-		this.debug('clear()');
 		//clear array	
 		this.arrLastResult = [];
 		//clear counter
@@ -190,7 +185,6 @@ function JSearch(){
 	
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.contains = function(id){
-		this.debug('contains()', id);	
 		//
 		if(typeof(this.arrExercices[o]) == 'object'){
 			return true;
@@ -199,20 +193,14 @@ function JSearch(){
 		return false;	
 		};
 	
-	//----------------------------------------------------------------------------------------------------------------------*
-	this.debug = function(){
-		if(typeof(this.jdebug) == 'object'){
-			if(arguments.length == 1){	
-				this.jdebug.show(this.className + '::' + arguments[0]);
-			}else{
-				this.jdebug.showObject(this.className + '::' + arguments[0], arguments);
-				}
-			}
-		};
 
-	}
+	//----------------------------------------------------------
+	//inject code in them for debugging
+	this.setClassHook();	
+
+}
 
 
-//CLASS END
+//EOF
 
 

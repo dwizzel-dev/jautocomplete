@@ -20,7 +20,8 @@ $getQuerySearch = isset($_GET['q']) ? $_GET['q'] : '';
 <div class="widget-searchbox-exercises noprint <?php echo $tmpStrWidgetNameUID; ?>"></div>
 <!-- loaded script -->
 <script src="<?php echo PATH_JS; ?>/jquery-1.7.2.js" type="text/javascript"></script>
-<script src="<?php echo PATH_JS; ?>/jdebug.js" type="text/javascript"></script>
+<script src="<?php echo PATH_JS; ?>/ahook.js" type="text/javascript"></script>
+<script src="<?php echo PATH_JS; ?>/adebug.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jlang.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jutils.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jserver.js" type="text/javascript"></script>
@@ -33,10 +34,7 @@ $getQuerySearch = isset($_GET['q']) ? $_GET['q'] : '';
 jQuery(document).ready(function($){
 	//main application 		
 	(window.gAppz = window.gAppz || new JAppz({
-		jdebug: new JDebug({
-			bAppz: false,
-			bDebug: true,
-			}).init(),
+		debug: true,
 		sessionId: 0,
 		isLocaleDb:true,
 		localeLang: 'en_US',

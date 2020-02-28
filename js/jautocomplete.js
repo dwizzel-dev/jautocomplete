@@ -11,13 +11,14 @@ Notes: Desole pour la pauvre qualite du francais des commentaires
     
 function JAutoComplete(){ 
 	
+	//extend abstract methods
+	$.extend(this, new ADebug(arguments[0].debug));
+
 	this.className = arguments.callee.name;
 	this.args = arguments[0];
-	this.jdebug = this.args.jdebug;
 	
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.init = function(){
-		this.debug('init()', this.args);
 		//base UID 
 		this.jlang = this.args.jlang;
 		//main appz soit la classe principale qui soccupe de tout
@@ -106,13 +107,11 @@ function JAutoComplete(){
 		
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.create = function(){
-		this.debug('create()');	
 		this.addInputBox();		
 		};
 		
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.setLastTypedWord = function(str){
-		this.debug('setLastTypedWord()', str);
 		//on garde en memoire	
 		this.lastTypedWord = str;
 		//		
@@ -120,7 +119,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.setCarretRange = function(params, start, end){
-		this.debug('setCarretRange()', params, start, end);
 		//on place le cursor
 		params.refinput.prop('selectionStart', start);
 		params.refinput.prop('selectionEnd', end);
@@ -129,14 +127,12 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.getLastTypedWord = function(){
-		this.debug('getLastTypedWord()');
 		//	
 		return this.lastTypedWord;	
 		};
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.setFirstLiWord = function(str){
-		this.debug('setFirstLiWord()', str);
 		//on garde en memoire	
 		this.firstLiWord = str;
 		//		
@@ -144,7 +140,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.setLastSearchString = function(str){
-		this.debug('setLastSearchString()', str);
 		//on garde en memoire	
 		this.lastSearchString = str;
 		//		
@@ -152,7 +147,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.getLastSearchString = function(){
-		this.debug('getLastSearchString()');
 		//on garde en memoire	
 		return this.lastSearchString;
 		//		
@@ -160,14 +154,12 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.getFirstLiWord = function(){
-		this.debug('getFirstLiWord()');
 		//	
 		return this.firstLiWord;	
 		};
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.setInputBoxText = function(oParams, str, bUpdateBg){
-		this.debug('setInputBoxText()', oParams, str, bUpdateBg);
 		//on reset le -bg
 		if(bUpdateBg){
 			this.setInputBgBoxText(oParams, '');
@@ -178,7 +170,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.setInputBgBoxText = function(oParams, str){
-		this.debug('setInputBgBoxText()', oParams, str);
 		//il va falloir checker si le mot est compose et dans le bon sens aussi
 		//sinon il ne faut pas remplir la case avec le hint
 		//il va falloir faire les bold dans la liste de choix LI aussi
@@ -200,7 +191,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.getCurrentWord = function(oParams){
-		this.debug('getCurrentWord()', oParams);
 		//juste le bg input
 		//on y va selon la la cle keyword-exercise
 		return this.currentSearchWord;
@@ -208,7 +198,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.getInputBoxText = function(oParams){
-		this.debug('getInputBoxText()', oParams);
 		//juste le bg input
 		//le front	
 		return oParams.refinput.val();
@@ -216,21 +205,18 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.trimStringBeginning = function(str){
-		this.debug('trimStringBeginning()', str);
 		//
 		return str.replace(/^\s+/gm, '');
 		}
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.trimStringEnding = function(str){
-		this.debug('trimStringEnding()', str);
 		//
 		return str.replace(/\s+$/gm, '');
 		}
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.setFocusedKwIds = function(strKwIds, strWord){
-		this.debug('setFocusedKwIds()', strKwIds, strWord);
 		//on va setter le kwIDS equivalent au contenu du LI
 		this.focusedKwIds = strKwIds;
 		//on va setter la strig aussi de recherche pour affichage du retour
@@ -239,7 +225,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.getFocusedKwIds = function(){
-		this.debug('getFocusedKwIds()');	
 		//on va setter le kwIDS equivalent au contenu du LI
 		return this.focusedKwIds;
 		};
@@ -257,7 +242,6 @@ function JAutoComplete(){
 	
 	*/
 	this.changeLiFocus = function(strDirection, oParams){
-		this.debug('changeLiFocus()', strDirection, oParams);
 		//
 		//on stop le timer de fetch preview exercise
 		clearTimeout(this.timerFetchExercisePreview);
@@ -375,7 +359,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.fetchAutoCompleteDataWithDelay = function(str, params){
-		this.debug('fetchAutoCompleteDataWithDelay()', str, params);
 		//la derniere string que l,on a chercher 
 		//pour eviter de recommencer la recherche
 		//on va stripper les multiple space en un seul
@@ -421,8 +404,7 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.fetchAutoCompleteData = function(evnt, str, params){
-		this.debug('fetchAutoCompleteData()', evnt,  str, params);
-
+		
 		//@DWIZZEL:
 		//this.setInputBgBoxText(params, '');
 
@@ -609,7 +591,6 @@ function JAutoComplete(){
 		
 	*/
 	this.fetchAutoCompleteDataRFS = function(obj, params, word, kwtype, cleanword, pid){
-		this.debug('fetchAutoCompleteDataRFS()', obj, params, word, kwtype, cleanword, pid);
 		// obj = le array de retour avec les mots
 		// params = l'object input
 		// word = le last typed word	
@@ -817,7 +798,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.fetchAutoCompleteDataRFS_extend2 = function(obj, params, word, kwtype, cleanword){
-		this.debug('fetchAutoCompleteDataRFS_extend2()', obj, params, word, kwtype, cleanword);
 		// obj = le array de retour avec les mots
 		// params = l'object input
 		// word = le last typed word	
@@ -1004,7 +984,6 @@ function JAutoComplete(){
 	
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.triggerInputEvent = function(strInputName){
-		this.debug('triggerInputEvent()', strInputName);
 		var ev = $.Event('keyup');
 		ev.which = 13; // <ENTER>
 		$('#' + strInputName).trigger(ev);
@@ -1013,7 +992,6 @@ function JAutoComplete(){
 	
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.fetchExercisePreviewWithDelay = function(params, strKwIds, strLiId){
-		this.debug('fetchExercisePreviewWithDelay()', params, strKwIds, strLiId);
 		//si enabled
 		if(this.bEnableExercisePreview){
 			//check si les exercice etait deja loade
@@ -1037,7 +1015,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.fetchExercisePreviewRFS = function(obj, params, strLiId, pid){
-		this.debug('fetchExercisePreviewRFS()', obj, params, strLiId, pid);
 		//
 		//check si le pid est le dernier, car certain resultat arrive plus tard que la derniere demande
 		if(this.lastExercisePreviewPid != pid){
@@ -1135,7 +1112,6 @@ function JAutoComplete(){
 			layer: 'main-input-' + this.uid,
 			input: 'search-input-' + this.uid,
 			};
-		this.debug('addInputBox()');	
 		//ajoute au array
 		this.arrInputBox[inputs.input] = inputs;
 		var strContainerInput = inputs.layer + '-div';
@@ -1174,7 +1150,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.rmInputBox = function(strInputName){
-		this.debug('rmInputBox()', strInputName);	
 		//event du butt
 		this.arrInputBox[strInputName].refinput.unbind();		
 		this.arrInputBox[strInputName].refinputbg.unbind();		
@@ -1184,7 +1159,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.resetMainAutoComplete = function(){
-		this.debug('resetMainAutoComplete()');	
 		//le auto complete
 		for(var o in this.arrInputBox){
 			$('#' + this.baseDivId).css({'display':'none'});
@@ -1194,7 +1168,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.resetSingleAutoComplete = function(params){
-		this.debug('resetSingleAutoComplete()', params);	
 		//le auto complete
 		$('#' + this.baseDivId).css({'display':'none'});
 		$('#' + this.baseDivId).text('');	
@@ -1204,14 +1177,12 @@ function JAutoComplete(){
 		
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.hideAutoComplete = function(){
-		this.debug('hideAutoComplete()');	
 		//le auto complete
 		$('#' + this.baseDivId).css({'display':'none'});
 		};	
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.resetSearchInputBox = function(){
-		this.debug('resetSearchInputBox()');	
 		
 		for(var o in this.arrInputBox){
 			//all inputs
@@ -1227,7 +1198,6 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.resetSingleSearchInputBox = function(params){
-		this.debug('resetSingleSearchInputBox()', params);	
 		//
 		this.setInputBgBoxText(params, '');
 		//
@@ -1240,14 +1210,12 @@ function JAutoComplete(){
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.fillInputWithString = function(str, params){
-		this.debug('fillInputWithString()', str, params);	
 		//
 		this.setInputBoxText(params, str, true);
 		};
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.resetPid = function(){
-		this.debug('resetPid()');	
 		//
 		this.lastAutoCompletePid.exercice = 0;
 		};
@@ -1255,7 +1223,6 @@ function JAutoComplete(){
 		
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.sendingWordToOurTeamForValidation = function(params){
-		this.debug('sendingWordToOurTeamForValidation()', params);	
 		
 		var word = this.getLastSearchString();
 		var msg = this.jlang.t('no_result_for_word') ;
@@ -1294,7 +1261,6 @@ function JAutoComplete(){
 		
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.setInputFromHint = function(word, params){
-		this.debug('setInputFromHint()', word, params);
 		//on va setter le input box comme si on avait fait 
 		//une recherche en tapant du texte
 		this.setInputBoxText(params, word, true);
@@ -1311,16 +1277,11 @@ function JAutoComplete(){
 		this.fetchAutoCompleteData(evnt, word, params);
 		};
 		
-	//----------------------------------------------------------------------------------------------------------------------*
-	this.debug = function(){
-		if(typeof(this.jdebug) == 'object'){
-			if(arguments.length == 1){	
-				this.jdebug.show(this.className + '::' + arguments[0]);
-			}else{
-				this.jdebug.showObject(this.className + '::' + arguments[0], arguments);
-				}
-			}
-		};
 
+	//----------------------------------------------------------
+	//inject code in them for debugging
+	this.setClassHook();	
 		
-	}
+}
+
+//EOF

@@ -10,17 +10,19 @@ Version: V.1.0 BUILD 001
     
 function JServer(){
 
+	//extend abstract methods
+	$.extend(this, new ADebug(arguments[0].debug));
+
 	//class name
 	this.className = arguments.callee.name;
 	this.args = arguments[0];
-	this.jdebug = this.args.jdebug;
-
+	
 	//cache
 	this.cacheData = {};
+
 	
 	//---------------------------------------------------------------------
 	this.init = function(){
-		this.debug('init()', this.args);
 		//
 		this.jlang = this.args.jlang;
 		this.db = false;
@@ -37,7 +39,6 @@ function JServer(){
 
 	//---------------------------------------------------------------------
 	this.process = function(obj){
-		this.debug('process()', obj);
 		//on check si on a une DB
 		if(this.db === false){
 			//call the caller
@@ -59,7 +60,6 @@ function JServer(){
 
 	//---------------------------------------------------------------------
 	this.processSearch = function(obj){
-		this.debug('processSearch()', obj);
 		//
 		switch(obj.service){
 			case 'fetch-autocomplete':
@@ -80,7 +80,6 @@ function JServer(){
 
 	//---------------------------------------------------------------------
 	this.gotoSearchPage = function(obj){
-		this.debug('gotoSearchPage()', obj);
 		//
 		//on redirige vars le url de recherche selon la langue
 		//on check si a une page ou aller
@@ -107,7 +106,6 @@ function JServer(){
 
 	//---------------------------------------------------------------------
 	this.fetchAutocomplete = function(obj){
-		this.debug('fetchAutocomplete()', obj);
 		var arrResult = [];
 		var arrWord = [];
 		var arrSplitWords = [];
@@ -184,7 +182,6 @@ function JServer(){
 
 	//---------------------------------------------------------------------
 	this.trimKeyword = function(str){
-		this.debug('trimKeyword()', str);
 		//
 		str = str.toLowerCase();
 		str = str.replace(/[^a-zA-Z0-9'\sÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ-]/gi, ' ');
@@ -209,7 +206,6 @@ function JServer(){
 	*/
 	
 	this.regexWordPermutation = function(arr){
-		this.debug('regexWordPermutation()', arr);
 		//
 		var arrRes = this.permutateArr(arr);	
 		var tmp = [''];
@@ -244,7 +240,6 @@ function JServer(){
 
 	//------------------------------------------------------------------------
 	this.regexWordsWithSpace = function(word){
-		this.debug('regexWordsWithSpace()', word);
 		//arr des mots a retenir
 		var str1 = '';
 		var str2 = '';
@@ -301,7 +296,6 @@ function JServer(){
 
 	//---------------------------------------------------------------------
 	this.setDB = function(obj){
-		this.debug('setDB()', obj);
 		//
 		this.db = obj;	
 		};
@@ -309,7 +303,6 @@ function JServer(){
 	//---------------------------------------------------------------------
 	//load the db lang file
 	this.getDB = function(){
-		this.debug('getDB()');
 		//on send
 		$.ajax({
 			timestamp: Date.now(),
@@ -346,16 +339,11 @@ function JServer(){
 
 		};
 
-	//----------------------------------------------------------------------------------------------------------------------*
-	this.debug = function(){
-		if(typeof(this.jdebug) == 'object'){
-			if(arguments.length == 1){	
-				this.jdebug.show(this.className + '::' + arguments[0]);
-			}else{
-				this.jdebug.showObject(this.className + '::' + arguments[0], arguments);
-				}
-			}
-		};
 
+	//----------------------------------------------------------
+	//inject code in them for debugging
+	this.setClassHook();
 
-	}
+}
+
+//EOF

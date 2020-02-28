@@ -6,75 +6,76 @@ Version: V.1.0 BUILD 001
 
 */
 
-//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------
 
 function JAppz(){
-	
-	this.className = arguments.callee.name;
+
+	//extend abstract methods
+	$.extend(this, new ADebug( arguments[0].debug));
+
+	this.className = this.constructor.name;
 	this.args = arguments[0];
-	this.jdebug = this.args.jdebug;
 	
 	//UID	
 	this.uid = new Date().getTime();
 
-	//----------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------
 	this.init = function(){
-		this.debug('init()', this.args);
 		//paths
 		this.serverImagePath = this.args.serverImagePath;
 		this.serverFormProcess = this.args.serverFormProcess;
 		//lang
 		this.jlang = new JLang({
-			jdebug: this.jdebug,
+			debug: this.args.debug,
 			path: this.args.serverCashPath,
 			lang: this.args.localeLang,
-			}).init();
+		}).init();
 		//utils
 		this.jutils = new JUtils({
-			jdebug: this.jdebug,	
+			debug: this.args.debug,	
 			jlang: this.jlang,
-			}).init(); 
+		}).init(); 
 		//server
 		if(this.args.isLocaleDb){
 			//otherwise the jcomm will get it from the server
 			this.jserver = new JServer({
-				jdebug: this.jdebug,
+				debug: this.args.debug,
 				jlang: this.jlang,
 				path: this.args.serverCashPath, 
 				lang: this.args.localeLang, 
 				serverFormProcess: this.serverFormProcess,
-				}).init();
-			}
+			}).init();
+		}
 		//comm obj	
 		this.jcomm = new JComm({
-			jdebug: this.jdebug,
+			debug: this.args.debug,
 			jlang: this.jlang,
 			serverService: this.args.serverService,
 			sessionId: this.args.sessionId,
 			localeLang: this.args.localeLang,
 			mainappz:this
-			}).init();
+		}).init();
 		//le search	
 		this.jsearch = new JSearch({
-			jdebug: this.jdebug,
+			debug: this.args.debug,
 			jlang: this.jlang,
 			mainappz:this, 
 			jcomm:this.jcomm
-			}).init(); 
+		}).init(); 
 		//le autocomplete
 		this.jautocomplete = new JAutoComplete({
-			jdebug: this.jdebug,
+			debug: this.args.debug,
 			jlang: this.jlang,
 			mainappz:this, 
 			uid:this.uid,	
 			word:this.args.currentSearchedWord,
 			focusoninput:this.args.focusOnInput,	
-			}).init(); 
+		}).init(); 
 		//container size
 		this.containerSize = {
 			h:0, 
 			w:0
-			};	
+		};	
 		//conteneur principal
 		this.mainContainer = this.args.mainContainer;
 		//search conteneur
@@ -83,29 +84,25 @@ function JAppz(){
 		this.containerSize = {
 			w: $(this.mainContainer).innerWidth(),
 			h: $(this.mainContainer).innerHeight(),
-			}		
+		}		
 		//resize event
 		$(window).resize(this.resizeAllElements.bind(this));
 		//le event
 		$(document).bind('jlang.Ready', this.jlangReady.bind(this, this.uid));
-		};
+	};
 		
-	//----------------------------------------------------------------------------------------------------------------------	
+	//----------------------------------------------------------
 	this.jlangReady = function(){
-		this.debug('jlangReady()', arguments);
 		var uid = arguments[0];
 		if(uid == this.uid){
 			//creer le container du autocomplete
 			this.createSearchInterface();
-			}
-		};
+		}
+	};
 	
 
-	//----------------------------------------------------------------------------------------------------------------------	
-	
+	//----------------------------------------------------------
 	this.resizeAllElements = function(){ 
-		this.debug('resizeAllElements()');
-
 		// moins la scrollbar quand pas en mode mobile	
 		this.containerSize = {
 			w: $(this.mainContainer).innerWidth(),
@@ -121,15 +118,14 @@ function JAppz(){
 	};
 		
 		
-	//----------------------------------------------------------------------------------------------------------------------*
+	//----------------------------------------------------------
 	//init the autocomplete serach fields
 	this.createSearchInterface = function(){
-		this.debug('createSearchInterface()');
 		//	
-		var str = '<div class="nobg-fix"><img src="' + this.serverImagePath + 'blank.png"></div>';	
-		str += '<div class="searchbox resizable">';
-		str += '<div id="main-input-' + this.uid + '" class="kw-searchbox"></div>';
-		str += '</div>';
+		var str = '<div class="nobg-fix"><img src="' + this.serverImagePath + 'blank.png"></div>' +	
+			'<div class="searchbox resizable">' +
+			'<div id="main-input-' + this.uid + '" class="kw-searchbox"></div>' +
+			'</div>';
 		//write content
 		$(this.searchContainer).html(str);
 		//le autocomplete
@@ -137,24 +133,15 @@ function JAppz(){
 		//call le resize pour ajuster au screen
 		this.resizeAllElements();	
 		
-		};	
+	};	
 
+
+	//----------------------------------------------------------
+	//inject code in them for debugging
+	this.setClassHook();
 	
-	
-	//----------------------------------------------------------------------------------------------------------------------*
-	this.debug = function(){
-		if(typeof(this.jdebug) == 'object'){
-			if(arguments.length == 1){	
-				this.jdebug.show(this.className + '::' + arguments[0]);
-			}else{
-				this.jdebug.showObject(this.className + '::' + arguments[0], arguments);
-				}
-			}
-		};
-		
 
-	}
+}
 
 
-
-//CLASS END
+//EOF

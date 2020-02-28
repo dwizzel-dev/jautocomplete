@@ -9,14 +9,16 @@ Version: 3.1.0 BUILD X.X
 //----------------------------------------------------------------------------------------------------------------------
 
 function JComm(){
+
+	//extend abstract methods
+	$.extend(this, new ADebug(arguments[0].debug));
 	
 	this.className = arguments.callee.name;
 	this.args = arguments[0];
-	this.jdebug = this.args.jdebug;
+		
 	
 	//---------------------------------------------------------------------
 	this.init = function(){
-		this.debug('init()', this.args);
 		//
 		this.jlang = this.args.jlang;
 		this.mainAppz = this.args.mainappz;	
@@ -24,16 +26,14 @@ function JComm(){
 		this.service = this.args.serverService;	
 		this.sessionId = this.args.sessionId;
 		this.localeLang = this.args.localeLang;
-		
 		return this;
-		};
+	};
 	
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.getTicket = function(){
-		this.debug('getTicket()');
 		this.pid++;
 		return this.pid;
-		};
+	};
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.buildExtraParams = function(){
@@ -42,20 +42,19 @@ function JComm(){
 		if(typeof(gBrand) == 'string'){
 			if(gBrand != ''){
 				str += '&brand=' + gBrand;
-				}
 			}
+		}
 		//on rajoute le branding
 		if(typeof(gVersioning) == 'string'){
 			if(gVersioning != ''){
 				str += '&versioning=' + gVersioning;
-				}
 			}
+		}
 		return str;
-		};
+	};
 	
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.process = function(callerClass, section, service, data, extraObj){
-		this.debug('process()', callerClass, section, service, data, extraObj);
 		//pid
 		var timestamp = Date.now();
 		var pid = this.getTicket();
@@ -69,10 +68,10 @@ function JComm(){
 				extraobj: extraObj,
 				pid: pid,
 				callerclass:callerClass,
-				}), 0);
+			}), 0);
 			//on load la db
 			return pid;
-			}
+		}
 		//
 		var strUrl = this.service + '/?';
 		//pour le file debug du cote php et laoder autre fichier que le standard
@@ -80,7 +79,7 @@ function JComm(){
 		//seulement si un sessid valide sinon affiche aucun
 		if(this.sessionId.length >= 26){	
 			strUrl += '&PHPSESSID=' + this.sessionId;
-			}
+		}
 		//timestamp for cache
 		strUrl += '&time=' + timestamp;
 		//lang
@@ -105,7 +104,7 @@ function JComm(){
 				service:service, 
 				data:JSON.stringify(data), 
 				pid:pid
-				},
+			},
 			success: function(dataRtn){
 				//parse data
 				//debug
@@ -113,7 +112,7 @@ function JComm(){
 					'dataRtn': dataRtn,
 					'time': ((Date.now() - this.timestamp)/1000) + 'seconds', 
 					'weight': ((dataRtn.length/1024)/1000) + ' Mo'
-					});
+				});
 				//try catch on it because of php errors , notice, warnings or scrumbled data
 				var error = '';
 				var obj;
@@ -121,38 +120,37 @@ function JComm(){
 					eval('var obj = ' + dataRtn + ';');
 				}catch(e){
 					error = e;
-					}
+				}
 				//check if the object was made ok format
 				if(typeof(obj) != 'object'){
 					//set state
 					obj = {
 						msgerrors: '<b>' + this.parentclass.jlang.t('server error on service call:') + '</b><br /><br />' + this.section + '.' + this.service + '<br /><br /><b>' + this.parentclass.jlang.t('service error:') + '</b><br /><br />' + error,
-						};
-					}
+					};
+				}
 				//debug
 				this.parentclass.debug('process().return(' + this.pid + '):', obj, this.extraobj);
 				//call the caller
 				this.callerclass.commCallBackFunc(this.pid, obj, this.extraobj);
 				//
-				},
+			},
 			error: function(dataRtn, ajaxOptions, thrownError){
 				this.parentclass.debug('process().error(' + this.pid + ')', this.data, dataRtn, ajaxOptions, thrownError);
 				//set state
 				obj = {
 					msgerrors: '<b>' + this.parentclass.jlang.t('server error on service call:') + '</b><br /><br />' + this.parentclass.formatErrorMessage(dataRtn, thrownError, this.timestamp),
-					};
+				};
 				//call the caller
 				this.callerclass.commCallBackFunc(this.pid, obj, this.extraobj);
 				//
-				}	
-			});
+			}	
+		});
 		//retun the ticket number	
 		return pid;
-		};
+	};
 
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.formatErrorMessage = function(xhr, exception, timestamp){
-		this.debug('formatErrorMessage()', xhr, exception, timestamp);
 		//
 		var str = '';
 		//
@@ -170,23 +168,15 @@ function JComm(){
 			str = this.jlang.t('Ajax request aborted.');
 		}else{
 			str = this.jlang.t('Uncaught Error' + xhr.responseText);
-			}
+		}
 		return '[' + timestamp + '] ' + str;
-		};
+	};
 
-	//----------------------------------------------------------------------------------------------------------------------*
-	this.debug = function(){
-		if(typeof(this.jdebug) == 'object'){
-			if(arguments.length == 1){	
-				this.jdebug.show(this.className + '::' + arguments[0]);
-			}else{
-				this.jdebug.showObject(this.className + '::' + arguments[0], arguments);
-				}
-			}
-		};
+	
+	//----------------------------------------------------------
+	//inject code in them for debugging
+	this.setClassHook();
 
-		
+}	
 
-	}	
-
-//CLASS END
+//EOF
