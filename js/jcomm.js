@@ -21,18 +21,11 @@ function JComm(){
 		//
 		this.jlang = this.args.jlang;
 		this.jserver = this.args.jserver;	
-		this.pid = 100;
 		this.service = this.args.serverService;	
 		this.sessionId = this.args.sessionId;
 		this.localeLang = this.args.localeLang;
 	};
 	
-	//----------------------------------------------------------------------------------------------------------------------*
-	this.getTicket = function(){
-		this.pid++;
-		return this.pid;
-	};
-
 	//----------------------------------------------------------------------------------------------------------------------*
 	this.buildExtraParams = function(){
 		var str = '';
@@ -52,23 +45,18 @@ function JComm(){
 	};
 	
 	//----------------------------------------------------------------------------------------------------------------------*
-	this.process = function(callerClass, section, service, data, extraObj){
+	this.process = function(section, service, data, resolve, reject){	
 		//pid
 		var timestamp = Date.now();
-		var pid = this.getTicket();
 		//en locale uniquement on va le triater avec un serveur locale a la place
 		if(this.jserver){
-			//settimeout pour avoir un delai car doit ramenr un pid avant e le traiter
-			setTimeout(this.jserver.process.bind(this.jserver, {
+			resolve(new Promise(this.jserver.process.bind(this.jserver, {	
 				section: section,
 				service: service,
 				data: data,
-				extraobj: extraObj,
-				pid: pid,
-				callerclass:callerClass,
-			}));
+			})));
 			//on load la db
-			return pid;
+			return;
 		}
 		//
 		var strUrl = this.service + '/?';
@@ -86,8 +74,6 @@ function JComm(){
 		$.ajax({
 			parentclass: this,
 			timestamp: timestamp,
-			pid: pid,
-			extraobj: extraObj,
 			callerclass: callerClass,
 			type: 'GET',
 			headers:{'cache-control':'no-cache'},
@@ -101,16 +87,9 @@ function JComm(){
 				section:section, 
 				service:service, 
 				data:JSON.stringify(data), 
-				pid:pid
 			},
 			success: function(dataRtn){
 				//parse data
-				//debug
-				this.parentclass.debug('process().success(' + this.pid + ')', {
-					'dataRtn': dataRtn,
-					'time': ((Date.now() - this.timestamp)/1000) + 'seconds', 
-					'weight': ((dataRtn.length/1024)/1000) + ' Mo'
-				});
 				//try catch on it because of php errors , notice, warnings or scrumbled data
 				var error = '';
 				var obj;
@@ -126,25 +105,22 @@ function JComm(){
 						msgerrors: '<b>' + this.parentclass.jlang.t('server error on service call:') + '</b><br /><br />' + this.section + '.' + this.service + '<br /><br /><b>' + this.parentclass.jlang.t('service error:') + '</b><br /><br />' + error,
 					};
 				}
-				//debug
-				this.parentclass.debug('process().return(' + this.pid + '):', obj, this.extraobj);
 				//call the caller
-				this.callerclass.commCallBackFunc(this.pid, obj, this.extraobj);
-				//
+				resolve(obj);
+				
 			},
 			error: function(dataRtn, ajaxOptions, thrownError){
-				this.parentclass.debug('process().error(' + this.pid + ')', this.data, dataRtn, ajaxOptions, thrownError);
 				//set state
 				obj = {
 					msgerrors: '<b>' + this.parentclass.jlang.t('server error on service call:') + '</b><br /><br />' + this.parentclass.formatErrorMessage(dataRtn, thrownError, this.timestamp),
 				};
 				//call the caller
-				this.callerclass.commCallBackFunc(this.pid, obj, this.extraobj);
-				//
+				resolve(obj);
+				
 			}	
 		});
-		//retun the ticket number	
-		return pid;
+		//
+		return;
 	};
 
 	//----------------------------------------------------------------------------------------------------------------------*

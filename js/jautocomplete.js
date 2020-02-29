@@ -353,8 +353,11 @@ function JAutoComplete(){
 		//pour le meme resultat
 		this.setLastSearchString(str);
 		//on envoi la requete au serveur
-		this.lastAutoCompletePid.exercice = this.jsearch.fetchAutoCompleteData(str, params, strKwType);
-		};
+		//this.lastAutoCompletePid.exercice = this.jsearch.fetchAutoCompleteData(str, params, strKwType);
+		this.jsearch.fetchAutoCompleteData(str, params, strKwType).then(function(res){
+			this.fetchAutoCompleteDataRFS(res.data.result, params, str, strKwType, res.data.cword);
+		}.bind(this));
+	};
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.fetchAutoCompleteData = function(evnt, str, params){
@@ -487,12 +490,23 @@ function JAutoComplete(){
 				//fetch le listing d'exercice en rapport avec les keyword ids
 				//si il y en avait
 				if(bFetch){
+					if(this.getFocusedKwIds() !== ''){
+						this.jsearch.getExerciceListingByKeywordIds(this.getFocusedKwIds(), this.getCurrentWord(params)).then(function(res){
+							//will go away on window.location.href
+						}.bind(this));
+						//on eneleve le autocomplete car on a quelque chose a chercher
+						this.resetSingleAutoComplete(params);
+						//
+						this.setLastSearchString(this.getCurrentWord(params));	
+						}
+					/*
 					if(this.jsearch.getExerciceListingByKeywordIds(this.getFocusedKwIds(), this.getCurrentWord(params))){
 						//on eneleve le autocomplete car on a quelque chose a chercher
 						this.resetSingleAutoComplete(params);
 						//
 						this.setLastSearchString(this.getCurrentWord(params));	
 						}
+					*/	
 				}else{
 					//il ne veut rien savoir des mots du autocomplete
 					//alors on lance une recherche text au serveur 
@@ -506,10 +520,15 @@ function JAutoComplete(){
 						//alors on lui lance le msg de submit		
 						if(this.bFoundAutoCompleteMatch){
 							this.debug('RECHERCHE TEXTE: ' + this.getLastSearchString());
+							/*
 							if(this.jsearch.getExerciceListingByWords(this.getLastSearchString())){
 								//on eneleve le autocomplete car on a quelque chose a chercher
 								this.resetSingleAutoComplete(params);
-								}	
+								}
+							*/	
+							this.jsearch.getExerciceListingByWords(this.getLastSearchString()).then(function(res){
+								//
+							}.bind(this));		
 								
 						}else{
 							//on lui dit que son mot est soumis a notre equipe	
@@ -541,17 +560,12 @@ function JAutoComplete(){
 		.position:'under',
 		
 	*/
-	this.fetchAutoCompleteDataRFS = function(obj, params, word, kwtype, cleanword, pid){
+	this.fetchAutoCompleteDataRFS = function(obj, params, word, kwtype, cleanword){
 		// obj = le array de retour avec les mots
 		// params = l'object input
 		// word = le last typed word	
 		// pid le last process id de la recherche de autocomplete
 
-		//check si le pid est le dernier, car certain resultat arrive plus tard que la derniere demande
-		if(this.lastAutoCompletePid.exercice != pid){
-			//rien a faire
-			return;
-			}
 		//
 		var bContinue = true;
 		//check pour les erreurs si il y a, mais on ne faitr rien avec pour l'instant

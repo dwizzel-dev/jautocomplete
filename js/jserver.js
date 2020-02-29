@@ -36,21 +36,20 @@ function JServer(){
 	};
 
 	//---------------------------------------------------------------------
-	this.process = function(obj){
+	this.process = function(obj, resolve, reject){
 		//on check si on a une DB
 		if(this.db === false){
-			//call the caller
-			obj.callerclass.commCallBackFunc(obj.pid, {msgerrors:'Local DB "' + this.urlDB + '" not available'}, obj.extraobj);
 			//get out
-			return false;
+			resolve({msgerrors:'Local DB "' + this.urlDB + '" not available'});
+			return;
 		}		
 		switch(obj.section){
 			case 'search':
-				this.processSearch(obj);
+				resolve(this.processSearch(obj));
 				break;
 			default: 
 				//default error
-				obj.callerclass.commCallBackFunc(obj.pid, {msgerrors:'Section not available'}, obj.extraobj);	
+				resolve({msgerrors:'Local DB "' + this.urlDB + '" not available'});
 				break;
 		}
 		//
@@ -61,18 +60,13 @@ function JServer(){
 		//
 		switch(obj.service){
 			case 'fetch-autocomplete':
-				this.fetchAutocomplete(obj);
-				break;
+				return this.fetchAutocomplete(obj);
 			case 'get-exercice-listing-by-keyword-ids':
-				this.gotoSearchPage(obj);
-				break;
+				return this.gotoSearchPage(obj);
 			case 'get-exercice-listing-by-words':
-				this.gotoSearchPage(obj);
-				break;
+				return this.gotoSearchPage(obj);
 			default: 
-				//default error
-				obj.callerclass.commCallBackFunc(obj.pid, {msgerrors:'Service not available'}, obj.extraobj);	
-				break;
+				return {msgerrors:'Service not available'};
 			}
 		};
 
@@ -85,15 +79,9 @@ function JServer(){
 			if(obj.data.word != ''){
 				//a bit of clean up
 				var word = this.trimKeyword(obj.data.word);
+				var ids = typeof obj.data.word !== 'undefined' ?? '';
 				if(word != ''){
-					//the path
-					/*
-					var path = this.serverFormProcess + '?';
-					path += '&lang=' + this.lang;
-					path += '&type=search-exercises';
-					path += '&keyword=' + encodeURI(word);
-					*/
-					var path = '/' + this.lang.substring(0,2) + '/?q=' + encodeURI(word);
+					var path = '/' + this.lang.substring(0,2) + '/?q=' + encodeURI(word) + '&ids=' + encodeURI(ids);;
 					this.debug('REDIRECTION: ' + path);
 					window.top.location.href = path;
 					}
@@ -173,9 +161,10 @@ function JServer(){
 				this.cacheData[key] = oRtn;	
 			}	
 
-		
+		return oRtn;		
+			
 		//call the caller
-		obj.callerclass.commCallBackFunc(obj.pid, oRtn, obj.extraobj);
+		//obj.callerclass.commCallBackFunc(obj.pid, oRtn, obj.extraobj);
 		};
 
 	//---------------------------------------------------------------------
