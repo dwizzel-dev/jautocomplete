@@ -82,7 +82,7 @@ window.JServer =
 				if (obj.data.word != "") {
 					//a bit of clean up
 					var word = this.trimKeyword(obj.data.word);
-					var ids = typeof obj.data.word !== "undefined" ?? "";
+					var ids = typeof obj.data.ids !== "undefined" ? obj.data.ids : "";
 					if (word != "") {
 						var path =
 							"/" +
@@ -182,9 +182,6 @@ window.JServer =
 			}
 
 			return oRtn;
-
-			//call the caller
-			//obj.callerclass.commCallBackFunc(obj.pid, oRtn, obj.extraobj);
 		};
 
 		//---------------------------------------------------------------------
@@ -203,17 +200,17 @@ window.JServer =
 
 		//---------------------------------------------------------------------
 		/*
-	example: "mon gros"
-	
-	|gros mon|mon gros|mon gros sale|massage|sale mon gros|ma grosse sale|ma grosse mondaine|
-	
-	\|[a-z0-9\s]{0,}[\s]{1,}mon[a-z0-9]{0,}[\s]{1,}gros[a-z0-9\s]{0,}|
-	\|mon[a-z0-9]{0,}[\s]{1,}gros[a-z0-9\s]{0,}|\|
-	
-	[a-z0-9\s]{0,}[\s]{1,}gros[a-z0-9]{0,}[\s]{1,}mon[a-z0-9\s]{0,}|\|
-	gros[a-z0-9]{0,}[\s]{1,}mon[a-z0-9\s]{0,}
-	
-	*/
+		example: "mon gros"
+		
+		|gros mon|mon gros|mon gros sale|massage|sale mon gros|ma grosse sale|ma grosse mondaine|
+		
+		\|[a-z0-9\s]{0,}[\s]{1,}mon[a-z0-9]{0,}[\s]{1,}gros[a-z0-9\s]{0,}|
+		\|mon[a-z0-9]{0,}[\s]{1,}gros[a-z0-9\s]{0,}|\|
+		
+		[a-z0-9\s]{0,}[\s]{1,}gros[a-z0-9]{0,}[\s]{1,}mon[a-z0-9\s]{0,}|\|
+		gros[a-z0-9]{0,}[\s]{1,}mon[a-z0-9\s]{0,}
+		
+		*/
 
 		this.regexWordPermutation = function(arr) {
 			//

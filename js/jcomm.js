@@ -27,7 +27,7 @@ window.JComm =
 			this.localeLang = this.args.localeLang;
 		};
 
-		//----------------------------------------------------------------------------------------------------------------------*
+		//----------------------------------------------------------
 		this.buildExtraParams = function() {
 			var str = "";
 			//on rajoute le branding
@@ -45,7 +45,7 @@ window.JComm =
 			return str;
 		};
 
-		//----------------------------------------------------------------------------------------------------------------------*
+		//----------------------------------------------------------
 		this.process = function(section, service, data, resolve, reject) {
 			//pid
 			var timestamp = Date.now();
@@ -109,13 +109,13 @@ window.JComm =
 						obj = {
 							msgerrors:
 								"<b>" +
-								this.parentclass.jlang.t("server error on service call:") +
+								this.parentclass.jlang.t("server_error_on_service_call") +
 								"</b><br /><br />" +
 								this.section +
 								"." +
 								this.service +
 								"<br /><br /><b>" +
-								this.parentclass.jlang.t("service error:") +
+								this.parentclass.jlang.t("service_error") +
 								"</b><br /><br />" +
 								error
 						};
@@ -128,7 +128,7 @@ window.JComm =
 					obj = {
 						msgerrors:
 							"<b>" +
-							this.parentclass.jlang.t("server error on service call:") +
+							this.parentclass.jlang.t("server_error_on_service_call") +
 							"</b><br /><br />" +
 							this.parentclass.formatErrorMessage(
 								dataRtn,
@@ -144,7 +144,7 @@ window.JComm =
 			return;
 		};
 
-		//----------------------------------------------------------------------------------------------------------------------*
+		//----------------------------------------------------------
 		this.formatErrorMessage = function(xhr, exception, timestamp) {
 			//
 			var str = "";

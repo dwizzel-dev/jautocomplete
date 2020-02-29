@@ -40,11 +40,6 @@ window.JAppz =
 				.catch(function(err) {
 					console.error("No lang file, just quiting!");
 				});
-			//utils
-			(this.jutils = new JUtils({
-				debug: this.args.debug,
-				jlang: this.jlang
-			})).init();
 			//server
 			if (this.args.isLocaleDb) {
 				//otherwise the jcomm will get it from the server
@@ -72,7 +67,6 @@ window.JAppz =
 			//le search
 			(this.jsearch = new JSearch({
 				debug: this.args.debug,
-				jlang: this.jlang,
 				jcomm: this.jcomm
 			})).init();
 			//le autocomplete
@@ -80,13 +74,10 @@ window.JAppz =
 				debug: this.args.debug,
 				jlang: this.jlang,
 				jsearch: this.jsearch,
-				jutils: this.jutils,
 				uid: this.uid,
 				word: this.args.currentSearchedWord,
 				focusoninput: this.args.focusOnInput
 			})).init();
-			//the autocomplete need to be to the jsearch
-			this.jsearch.registerAutoComplete(this.jautocomplete);
 			//container size
 			this.containerSize = {
 				h: 0,

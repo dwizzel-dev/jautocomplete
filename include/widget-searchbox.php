@@ -19,16 +19,15 @@ $getQuerySearch = isset($_GET['q']) ? $_GET['q'] : '';
 <!-- search box layer -->
 <div class="widget-searchbox-exercises noprint <?php echo $tmpStrWidgetNameUID; ?>"></div>
 <!-- loaded script -->
-<script src="<?php echo PATH_JS; ?>/jquery-1.7.2.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/ahook.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/adebug.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jlang.js" type="text/javascript"></script>
-<script src="<?php echo PATH_JS; ?>/jutils.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jserver.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jcomm.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jsearch.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jappz.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/jautocomplete.js" type="text/javascript"></script>
+<script src="<?php echo PATH_JS; ?>/jquery-1.7.2.js" type="text/javascript"></script>
 <!-- locale script -->
 <script>
 jQuery(document).ready(function($){

@@ -17,30 +17,28 @@ window.JSearch =
 		this.className = arguments.callee.name;
 		this.args = arguments[0];
 
-		//----------------------------------------------------------------------------------------------------------------------*
+		//----------------------------------------------------------
 		this.init = function() {
 			//
-			this.jlang = this.args.jlang;
 			this.jcomm = this.args.jcomm;
-			this.jautocomplete = this.args.jautocomplete;
 		};
 
-		//----------------------------------------------------------------------------------------------------------------------*
-		this.registerAutoComplete = function(obj) {
-			this.jautocomplete = obj;
-		};
-
-		//----------------------------------------------------------------------------------------------------------------------*
-		this.fetchAutoCompleteData = function(str, params, strKwType) {
+		//----------------------------------------------------------
+		this.fetchAutoCompleteData = function(str, strKwType) {
 			return new Promise(
-				this.jcomm.process.bind(this.jcomm, "search", "fetch-autocomplete", {
-					word: str,
-					kwtype: strKwType
-				})
+				this.jcomm.process.bind(
+					this.jcomm, 
+					"search", 
+					"fetch-autocomplete", 
+					{
+						word: str,
+						kwtype: strKwType
+					}
+				)
 			);
 		};
 
-		//----------------------------------------------------------------------------------------------------------------------*
+		//----------------------------------------------------------
 		this.getExerciceListingByWords = function(str) {
 			return new Promise(
 				this.jcomm.process.bind(
@@ -54,7 +52,7 @@ window.JSearch =
 			);
 		};
 
-		//----------------------------------------------------------------------------------------------------------------------*
+		//----------------------------------------------------------
 		this.getExerciceListingByKeywordIds = function(strIds, str) {
 			return new Promise(
 				this.jcomm.process.bind(
