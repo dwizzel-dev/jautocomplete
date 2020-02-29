@@ -123,13 +123,7 @@ window.JAutoComplete =
 			params.refinput.prop("selectionEnd", end);
 			//
 		};
-
-		//---------------------------------------------------*
-		this.getLastTypedWord = function() {
-			//
-			return this.lastTypedWord;
-		};
-
+		
 		//---------------------------------------------------*
 		this.setFirstLiWord = function(str) {
 			//on garde en memoire
@@ -142,19 +136,6 @@ window.JAutoComplete =
 			//on garde en memoire
 			this.lastSearchString = str;
 			//
-		};
-
-		//---------------------------------------------------*
-		this.getLastSearchString = function() {
-			//on garde en memoire
-			return this.lastSearchString;
-			//
-		};
-
-		//---------------------------------------------------*
-		this.getFirstLiWord = function() {
-			//
-			return this.firstLiWord;
 		};
 
 		//---------------------------------------------------*
@@ -188,13 +169,6 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.getCurrentWord = function(oParams) {
-			//juste le bg input
-			//on y va selon la la cle keyword-exercise
-			return this.currentSearchWord;
-		};
-
-		//---------------------------------------------------*
 		this.getInputBoxText = function(oParams) {
 			//juste le bg input
 			//le front
@@ -220,13 +194,7 @@ window.JAutoComplete =
 			//on va setter la strig aussi de recherche pour affichage du retour
 			this.currentSearchWord = strWord;
 		};
-
-		//---------------------------------------------------*
-		this.getFocusedKwIds = function() {
-			//on va setter le kwIDS equivalent au contenu du LI
-			return this.focusedKwIds;
-		};
-
+		
 		//---------------------------------------------------*
 		/*
 		1. sur le focus du LI 
@@ -276,9 +244,9 @@ window.JAutoComplete =
 				if (iFocusId === 0) {
 					//on doit remettre ce que l'on a garde en memoire
 					//car revient sur le input box apres etre passe d'un LI a l'autre
-					this.setInputBoxText(oParams, this.getLastTypedWord(), true);
+					this.setInputBoxText(oParams, this.lastTypedWord, true);
 					//on remet le bg au permier choix du LI
-					this.setInputBgBoxText(oParams, this.getFirstLiWord());
+					this.setInputBgBoxText(oParams, this.firstLiWord);
 				}
 			}
 			//si le focus est 0
@@ -320,10 +288,13 @@ window.JAutoComplete =
 				var el = $("#" + this.baseDivId + " " + "#lisr" + iFocusId);
 				//on set le focus au LI
 				el.addClass("focus");
+				//
+				var kIds = el.attr("keyword-ids");
+				var kWord = el.attr("keyword-word");
 				//on change le input box avec le contenu du LI
-				this.setInputBoxText(oParams, el.attr("keyword-word"), true);
+				this.setInputBoxText(oParams, kWord, true);
 				//on set les KWids focused
-				this.setFocusedKwIds(el.attr("keyword-ids"), el.attr("keyword-word"));
+				this.setFocusedKwIds(kIds, kWord);
 				//on set l'attribut
 				$(strUlListingRef).attr("focus-id", iFocusId);
 			}
@@ -432,7 +403,7 @@ window.JAutoComplete =
 			if (evnt.which != "13") {
 				//dans le cas un c'est un debut avec char mais pas autre char apres ex: "ab " et que l,on a deja chercher pour "ab" alors on annule le search ou si c,est la meme recherche avec un backspace sur des espace <space>
 				if (
-					str == this.getLastSearchString() &&
+					str == this.lastSearchString &&
 					evnt.which != "38" &&
 					evnt.which != "40"
 				) {
@@ -487,29 +458,30 @@ window.JAutoComplete =
 				//pas etre vide
 				if (str != "" && str.length >= this.minStrLen) {
 					//le bloolean du fetch, //check si vide
-					var bFetch = (this.getFocusedKwIds() !== "");
+					var bFetch = (this.focusedKwIds !== "");
 					//est-ce que l'on fait une recherche texte
 					//fetch le listing d'exercice en rapport avec les keyword ids
 					//si il y en avait
 					if (bFetch) {
 						//on change le input box avec le contenu de recherche word
 						//car peut-etre que les KwId sont setter mais pas le current word
-						this.setInputBoxText(params, this.getCurrentWord(params), true);
-						//on eneleve le autocomplete car on a quelque chose a chercher
-						this.resetSingleAutoComplete(params);
+						this.setInputBoxText(params, this.currentSearchWord, true);
 						//
-						this.setLastSearchString(this.getCurrentWord(params));
+						this.setLastSearchString(this.currentSearchWord);
 						//lance la recherche et fo vers la page
 						this.jsearch
 							.getExerciceListingByKeywordIds(
-								this.getFocusedKwIds(),
-								this.getCurrentWord(params)
+								this.focusedKwIds,
+								this.currentSearchWord
 							)
 							.then(
 								function(res) {
 									//will go away on window.location.href
 								}.bind(this)
 							);
+						//on eneleve le autocomplete car on a quelque chose a chercher
+						this.resetSingleAutoComplete(params);
+							
 					} else {
 						//il ne veut rien savoir des mots du autocomplete
 						//alors on lance une recherche text au serveur
@@ -522,9 +494,9 @@ window.JAutoComplete =
 							//vu que lon cherche deja dans les title et keywords
 							//alors on lui lance le msg de submit
 							if (this.bFoundAutoCompleteMatch) {
-								this.debug("RECHERCHE TEXTE: " + this.getLastSearchString());
+								this.debug("RECHERCHE TEXTE: " + this.lastSearchString);
 								this.jsearch
-									.getExerciceListingByWords(this.getLastSearchString())
+									.getExerciceListingByWords(this.lastSearchString)
 									.then(
 										function(res) {
 											//it will go window.location.href
@@ -603,7 +575,7 @@ window.JAutoComplete =
 							//si on le garde cest ce qui sera lance
 							this.setFirstLiWord(obj[0].name);
 							//set le input-bg
-							this.setInputBgBoxText(params, this.getFirstLiWord());
+							this.setInputBgBoxText(params, this.firstLiWord);
 							//on efface les kwids l'usager ne l' pas choisi de lui meme
 							this.setFocusedKwIds("", "");
 						} else {
@@ -629,7 +601,7 @@ window.JAutoComplete =
 						) {
 							//on garde des resultat pour des hint dans la
 							//proposition a lusager lors de aucun result
-							this.arrLastHintResult.push(obj[o].name);
+							this.arrLastHintResult.push(obj[o]);
 							//change to blue hint if word substr is found in the text
 							var strLiText = obj[o].name;
 							var strMatch = "";
@@ -695,7 +667,7 @@ window.JAutoComplete =
 						//on show
 						.css({ display: "block" });
 					//on keep du data
-					$("#" + this.baseDivId + " .single-result > .mclick").click(
+					$("#" + this.baseDivId + " .single-result").click(
 						$.proxy(function(e) {
 							e.preventDefault();
 							var keywordIds = $(e.target).attr("keyword-ids");
@@ -707,11 +679,14 @@ window.JAutoComplete =
 							//set les keywords ids focused
 							this.setFocusedKwIds(keywordIds, keywordWord);
 							//fetch le listing d'exercice en rapport avec les keyword ids
-							if (this.getFocusedKwIds() !== "") {
+							if (this.focusedKwIds !== "") {
+								//
+								this.setLastSearchString(this.currentSearchWord);
+								//fetch
 								this.jsearch
 									.getExerciceListingByKeywordIds(
-										this.getFocusedKwIds(),
-										this.getCurrentWord(params)
+										this.focusedKwIds,
+										this.currentSearchWord
 									)
 									.then(
 										function(res) {
@@ -720,8 +695,6 @@ window.JAutoComplete =
 									);
 								//on eneleve le autocomplete
 								this.resetSingleAutoComplete(params);	
-								//
-								this.setLastSearchString(this.getCurrentWord(params));
 							}
 						}, this)
 					);
@@ -905,7 +878,7 @@ window.JAutoComplete =
 
 		//---------------------------------------------------*
 		this.sendingWordToOurTeamForValidation = function(params) {
-			var word = this.getLastSearchString();
+			var word = this.lastSearchString;
 			var msg = this.jlang.t("no_result_for_word");
 			//si on avait des resultat de hint dans le autocomplete
 			//on pourrait lui proposer ceux-la
@@ -917,9 +890,9 @@ window.JAutoComplete =
 				for (var o in this.arrLastHintResult) {
 					msg +=
 						'<LI class="single-hint" keyword-word="' +
-						this.arrLastHintResult[o] +
+						this.arrLastHintResult[o].name +
 						'">' +
-						this.arrLastHintResult[o] +
+						this.arrLastHintResult[o].name +
 						"</LI>";
 				}
 			}
