@@ -21,8 +21,10 @@ function JAutoComplete(){
 	this.init = function(){
 		//base UID 
 		this.jlang = this.args.jlang;
-		//main appz soit la classe principale qui soccupe de tout
-		this.mainAppz = this.args.mainappz;
+		//the search class
+		this.jsearch = this.args.jsearch;
+		//register for callback
+		this.jutils = this.args.jutils;
 		//unique ID
 		this.uid = this.args.uid;
 		//base div 
@@ -57,22 +59,10 @@ function JAutoComplete(){
 		this.lastAutoCompletePid = {
 			exercice: 0
 			};
-		//le lastPID de la recherche de preview des exercise
-		this.lastExercisePreviewPid	= 0;
-		//enable preview exercise fetch
-		this.bEnableExercisePreview = false;	
-		//enable erase preview when up or down
-		this.bEnableRemovePreview = true;	
-		//enable mouse over keyword exercise preview
-		this.bEnableMouseOver = false;	
 		//le temps entre chaque call du fetchAutoCompleteDataWithDelay en millisecond google est a 130ms
 		this.timeDelay = 0;
-		//delai pour le preview	
-		this.timePreviewDelay = 333;	
 		//le timer du setTimeout poura ller fetcher le autocomplete data
 		this.timerFetchAutoComplete = 0;	
-		//timer pour le fetch des exercice preview
-		this.timerFetchExercisePreview = 0;		
 		//event.which we refused
 		//les event poru lesquelles on ne fera rien genre : <SHIFT + LEFT_ARROW> etc...
 		//http://docstore.mik.ua/orelly/webprog/DHTML_javascript/0596004672_jvdhtmlckbk-app-b.html		
@@ -85,11 +75,6 @@ function JAutoComplete(){
 			118,119,120,121,
 			122,123,144,145
 			];
-		//kwtype pour les traduction de ttire LI
-		this.arrKwType = {
-			'1': 'keywords',
-			'2': 'short title',
-			};
 		//vu que rien n'est cherche car il se remplit auto il faut setter les params de base
 		//pour que le press <ENTER> fonctionne
 		//@DWIZZEL: dont work for now		
@@ -243,29 +228,10 @@ function JAutoComplete(){
 	*/
 	this.changeLiFocus = function(strDirection, oParams){
 		//
-		//on stop le timer de fetch preview exercise
-		clearTimeout(this.timerFetchExercisePreview);
-		//on reset le pid du preview
-		this.lastExercisePreviewPid = 0;
 		//base ref du autocomplete
 		var strUlListingRef = '#' + this.baseDivId + ' > UL.listing';
 		//le id present qui a le focus	
 		var iFocusId = parseInt($(strUlListingRef).attr('focus-id'));
-		//si on veut faire disparaitre les precedent preview
-		if(this.bEnableRemovePreview && iFocusId != 0){
-			//remove le UL
-			//$('#lisr' + iFocusId + ' > UL.exercises').css({'display':'none'});
-			$('#' + this.baseDivId + ' ' + '#lisr' + iFocusId + ' > UL.exercises').css({'display':'none'});
-			//check si avait deja un preview de loader = 1
-			//si oui setter le status a 2 pour eviter de 
-			//reloader pour rien la prochaine fois
-			//if($('#lisr' + iFocusId).attr('preview-loaded') == '1'){	
-			if($('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).attr('preview-loaded') == '1'){	
-				//set l'attribute a non loaded
-				//$('#lisr' + iFocusId).attr('preview-loaded', '2');
-				$('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).attr('preview-loaded', '2');
-				}	
-			}
 		//garde le last id qui a ete modifie pour changer le style et le focus
 		var iLastFocusId = iFocusId;
 		//le max de id row
@@ -314,17 +280,11 @@ function JAutoComplete(){
 					//on set sur le dernier LI
 					$('#lisr' + iMaxFocusId).addClass('focus');	
 					//on change le input box avec le contenu du LI
-					//this.setInputBoxText(oParams, $('#lisr' + iMaxFocusId).attr('keyword-word'), true);
 					this.setInputBoxText(oParams, $('#' + this.baseDivId + ' ' + '#lisr' + iMaxFocusId).attr('keyword-word'), true);
 					//on set les KWids focused
-					//this.setFocusedKwIds($('#lisr' + iMaxFocusId).attr('keyword-ids'), $('#lisr' + iMaxFocusId).attr('keyword-word'));
 					this.setFocusedKwIds($('#' + this.baseDivId + ' ' + '#lisr' + iMaxFocusId).attr('keyword-ids'), $('#' + this.baseDivId + ' ' + '#lisr' + iMaxFocusId).attr('keyword-word'));
 					//on set l'attribut
 					$(strUlListingRef).attr('focus-id', iMaxFocusId);
-					//on va loader un preview timer si reste longtemps dessus
-					if(this.bEnableExercisePreview){
-						this.timerFetchExercisePreview = setTimeout(this.fetchExercisePreviewWithDelay.bind(this, oParams, this.getFocusedKwIds(), iMaxFocusId), this.timePreviewDelay);
-						}
 					}
 			}else{ 	//alors on descnd et on est rendu au dernier choix
 				//met le focus sur le input box
@@ -337,21 +297,13 @@ function JAutoComplete(){
 				}
 		}else{
 			//on set le focus au LI
-			//$('#lisr' + iFocusId).addClass('focus');
 			$('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).addClass('focus');
 			//on change le input box avec le contenu du LI
-			//this.setInputBoxText(oParams, $('#lisr' + iFocusId).text(), true);
-			//this.setInputBoxText(oParams, $('#lisr' + iFocusId).attr('keyword-word'), true);
 			this.setInputBoxText(oParams, $('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).attr('keyword-word'), true);
 			//on set les KWids focused
-			//this.setFocusedKwIds($('#lisr' + iFocusId).attr('keyword-ids'), $('#lisr' + iFocusId).attr('keyword-word'));
 			this.setFocusedKwIds($('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).attr('keyword-ids'), $('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).attr('keyword-word'));
 			//on set l'attribut
 			$(strUlListingRef).attr('focus-id', iFocusId);
-			//on va loader un preview timer si reste longtemps dessus
-			if(this.bEnableExercisePreview){
-				this.timerFetchExercisePreview = setTimeout(this.fetchExercisePreviewWithDelay.bind(this, oParams, this.getFocusedKwIds(), iFocusId), this.timePreviewDelay);
-				}
 			}
 		//
 		};
@@ -399,7 +351,7 @@ function JAutoComplete(){
 		//pour le meme resultat
 		this.setLastSearchString(str);
 		//on envoi la requete au serveur
-		this.lastAutoCompletePid.exercice = this.mainAppz.jsearch.fetchAutoCompleteData(str, params, strKwType);
+		this.lastAutoCompletePid.exercice = this.jsearch.fetchAutoCompleteData(str, params, strKwType);
 		};
 
 	//----------------------------------------------------------------------------------------------------------------------*	
@@ -410,10 +362,6 @@ function JAutoComplete(){
 
 		//on arrete le timer si il y en avait un car la requete est nouvelle et l,autre n'est plus valide
 		clearTimeout(this.timerFetchAutoComplete);
-		//on stop le timer de fetch preview exercise car plus valide
-		clearTimeout(this.timerFetchExercisePreview);
-		//on reset le pid du preview
-		this.lastExercisePreviewPid = 0;
 		//les event poru lesquelle on ne fera rien genre : <SHIFT + LEFT_ARROW> etc...
 		if(this.arrRefusedEvent.indexOf(evnt.which) !== -1){
 			//on sort
@@ -484,7 +432,7 @@ function JAutoComplete(){
 				//si pas vide faire la recherche
 				if(str != '' && str.length >= this.minStrLen){
 					//mettre en minuscule
-					str = this.mainAppz.jutils.toLower(str);
+					str = this.jutils.toLower(str);
 					//on va fetcher le data
 					//mais on va laisser un delai car peu taper tres vite (comme yves haha!) et 
 					//ca ne sert a rien d'aller chercher tout si il rajoute d'autre truc apres
@@ -537,7 +485,7 @@ function JAutoComplete(){
 				//fetch le listing d'exercice en rapport avec les keyword ids
 				//si il y en avait
 				if(bFetch){
-					if(this.mainAppz.jsearch.getExerciceListingByKeywordIds(this.getFocusedKwIds(), this.getCurrentWord(params))){
+					if(this.jsearch.getExerciceListingByKeywordIds(this.getFocusedKwIds(), this.getCurrentWord(params))){
 						//on eneleve le autocomplete car on a quelque chose a chercher
 						this.resetSingleAutoComplete(params);
 						//
@@ -556,10 +504,11 @@ function JAutoComplete(){
 						//alors on lui lance le msg de submit		
 						if(this.bFoundAutoCompleteMatch){
 							this.debug('RECHERCHE TEXTE: ' + this.getLastSearchString());
-							if(this.mainAppz.jsearch.getExerciceListingByWords(this.getLastSearchString())){
+							if(this.jsearch.getExerciceListingByWords(this.getLastSearchString())){
 								//on eneleve le autocomplete car on a quelque chose a chercher
 								this.resetSingleAutoComplete(params);
 								}	
+								
 						}else{
 							//on lui dit que son mot est soumis a notre equipe	
 							this.sendingWordToOurTeamForValidation(params);
@@ -611,28 +560,17 @@ function JAutoComplete(){
 			}
 		//continue or not
 		if(bContinue && params.refinput.is(':focus')){
-			//num rows, cest a dire le nombre de kwtype au moins 1 au minimum
-			var iNumKwType = Object.keys(obj).length;
 			//on va voir si on a plus que un kwtype sinon on affiche normal
 			//sans de titre en plus
 			var iNumRows = 0;
-			if(iNumKwType == 1){
-				//alors on deoit trouver le premier kw unique 
-				//car pourrait etre envoye 1,2,3
-				//mais uniquement 2 pourrait avoir des retours
-				for(var o in obj){
-					obj = obj[o];	
-					break;
-					}
-				iNumRows = Object.keys(obj).length;	
-				//va continuer plus loin dans le code
-			}else if(iNumKwType > 1){
-				//on va passer a une fonctione pour gerer tout ca pour l'instant le temps que 
-				//le prototype soit accepte
-				this.fetchAutoCompleteDataRFS_extend2(obj, params, word, kwtype, cleanword);
-				//la finction va prendre en charge le reste
-				return;
+			//alors on deoit trouver le premier kw unique 
+			//car pourrait etre envoye 1,2,3
+			//mais uniquement 2 pourrait avoir des retours
+			for(var o in obj){
+				obj = obj[o];	
+				break;
 				}
+			iNumRows = Object.keys(obj).length;	
 			//si a un resultat
 			if(iNumRows > 0){
 				this.bHaveAutoCompleteResult = true;
@@ -661,7 +599,6 @@ function JAutoComplete(){
 					}
 				//get la position du serach box
 				var iCmpt = 1;
-				//var bHint = false;
 				var data = '<UL class="listing" focus-id="0" focus-id-max="' + iNumRows + '">';
 				var bFoundMatch = false;
 				//loop data
@@ -672,7 +609,6 @@ function JAutoComplete(){
 						this.arrLastHintResult.push(obj[o].name);
 						//change to blue hint if word substr is found in the text
 						var strLiText = obj[o].name;
-						//var arrNameWords = obj[o].name.split(' ');
 						var strMatch = '';
 						for(var p in arrWords){
 							strMatch += '^' + arrWords[p] + '|[ ]{1}' + arrWords[p] + '|'; 
@@ -713,66 +649,27 @@ function JAutoComplete(){
 				//on keep du data
 				$('#' + this.baseDivId + ' .single-result > .mclick').data('params', params);
 				//
-				var mainAppz = this.mainAppz;
-				//si enabled
-				if(this.bEnableMouseOver){
-					//le mouse over du li pour ouvrir exercice
-					$('#' + this.baseDivId + ' .single-result > .mclick').mouseover(function(e){
-						//on stop le timer de fetch preview exercise
-						clearTimeout(mainAppz.jautocomplete.timerFetchExercisePreview);
-						//on reset le pid du preview
-						mainAppz.jautocomplete.lastExercisePreviewPid = 0;
-						//on set les KWids focused
-						mainAppz.jautocomplete.setFocusedKwIds($(this).attr('keyword-ids'), $(this).attr('keyword-word'));
-						//on va loader un preview timer si reste longtemps dessus
-						if(mainAppz.jautocomplete.bEnableExercisePreview){
-							mainAppz.jautocomplete.timerFetchExercisePreview = setTimeout(mainAppz.jautocomplete.fetchExercisePreviewWithDelay.bind(mainAppz.jautocomplete, $(this).data('params'), mainAppz.jautocomplete.getFocusedKwIds(), $(this).attr('li-pos')), mainAppz.jautocomplete.timePreviewDelay);
-							}
-					
-						});
-					//le mouse out
-					$('#' + this.baseDivId + ' .single-result > .mclick').mouseout(function(e){
-						//on stop le timer de fetch preview exercise
-						clearTimeout(mainAppz.jautocomplete.timerFetchExercisePreview);
-						//on reset le pid du preview
-						mainAppz.jautocomplete.lastExercisePreviewPid = 0;
-						//le focus one
-						var iFocusId = $(this).attr('li-pos');
-						//remove le UL
-						//$('#lisr' + iFocusId + ' > UL.exercises').css({'display':'none'});
-						$('#' + mainAppz.baseDivId + ' ' + '#lisr' + iFocusId + ' > UL.exercises').css({'display':'none'});
-						//check si avait deja un preview de loader = 1
-						//si oui setter le status a 2 pour eviter de 
-						//reloader pour rien la prochaine fois
-						//if($('#lisr' + iFocusId).attr('preview-loaded') == '1'){	
-						if($('#' + mainAppz.baseDivId + ' ' + '#lisr' + iFocusId).attr('preview-loaded') == '1'){	
-							//set l'attribute a non loaded
-							//$('#lisr' + iFocusId).attr('preview-loaded', '2');
-							$('#' + mainAppz.baseDivId + ' ' + '#lisr' + iFocusId).attr('preview-loaded', '2');
-							}	
-							
-						});
-					}		
+				var that = this;
 				//on met un listener pour le click sur les resultats		
 				$('#' + this.baseDivId + ' .single-result > .mclick').click(function(e){
 					e.preventDefault();
 					var keywordIds = $(this).attr('keyword-ids');
 					var keywordWord = $(this).attr('keyword-word');
 					var params = $(this).data('params');
-					mainAppz.debug(params.input + ' -> Clicked');
+					that.debug(params.input + ' -> Clicked');
 					//set le input  et nput-bg
-					mainAppz.jautocomplete.setInputBoxText(params, keywordWord, true);
+					that.setInputBoxText(params, keywordWord, true);
 					//set le focus sur input
 					params.refinput.focus();
 					//set les keywords ids focused
-					mainAppz.jautocomplete.setFocusedKwIds(keywordIds, keywordWord);
+					that.setFocusedKwIds(keywordIds, keywordWord);
 					//fetch le listing d'exercice en rapport avec les keyword ids
-					if(mainAppz.jsearch.getExerciceListingByKeywordIds(mainAppz.jautocomplete.getFocusedKwIds(), mainAppz.jautocomplete.getCurrentWord(params))){
+					if(that.jsearch.getExerciceListingByKeywordIds(that.getFocusedKwIds(), that.getCurrentWord(params))){
 						//
-						mainAppz.jautocomplete.setLastSearchString(mainAppz.jautocomplete.getCurrentWord(params));		
+						that.setLastSearchString(that.getCurrentWord(params));		
 						}
 					//on eneleve le autocomplete
-					oTmp.jautocomplete.resetSingleAutoComplete(params);
+					that.resetSingleAutoComplete(params);
 					});
 				//on quitte
 				return;
@@ -796,190 +693,6 @@ function JAutoComplete(){
 		this.resetSingleAutoComplete(params); 
 		};
 
-	//----------------------------------------------------------------------------------------------------------------------*
-	this.fetchAutoCompleteDataRFS_extend2 = function(obj, params, word, kwtype, cleanword){
-		// obj = le array de retour avec les mots
-		// params = l'object input
-		// word = le last typed word	
-		//si on doit reset le bg hint, etc...
-		var bResetHint = true;
-		//le word plitter pour trouver le reste
-		var arrWords = cleanword.split(' ');
-		if(typeof(arrWords) != 'object'){
-			arrWords = [];
-			}
-		//pour la position du search box
-		var iCmpt = 1;
-		//le total de rows
-		var iNumTotalRows = 0; 
-		//le contenu a l'interieur du UL listing
-		var strDataContent = ''; 
-		//si on doit reset le bg hint, etc...
-		var bResetHint = false;
-		//on loop dans les kwtype
-		for(var kw in obj){	
-			//les numrow dun kwtype
-			var iNumRows = Object.keys(obj[kw]).length;
-			//si a un resultat
-			if(iNumRows > 0){
-				//total de rows en tout
-				iNumTotalRows += iNumRows;
-				//
-				this.bHaveAutoCompleteResult = true;
-				//on garde le premier choix que l,on va proposer dans le input-bg en gris
-				if(typeof(obj[kw][0].name) == 'string' && kw == '1'){
-					// si le debut du mot correspond
-					if(obj[kw][0].name.indexOf(word) === 0){
-						//le premier LI	
-						//si on le garde cest ce qui sera lance
-						this.setFirstLiWord(obj[kw][0].name);
-						//set le input-bg
-						this.setInputBgBoxText(params, this.getFirstLiWord());
-						//on set les KWids focused
-						//on efface car on ne lance pas automatique ment de recherche
-						this.setFocusedKwIds('', '');
-					}else{
-						bResetHint = true;
-						}
-				}else{
-					bResetHint = true;
-					}
-				//on ajoute le titre du type de recherche
-				strDataContent += '<LI class="single-result-title">' + this.jlang.t(this.arrKwType[kw]) + '</LI>'; //0=id, 1=name
-				//loop data pour les li
-				var bFoundMatch = false;
-				//loop data
-				for(var o in obj[kw]){
-					if(typeof(obj[kw][o].name) == 'string' && (typeof(obj[kw][o].id) == 'string' || typeof(obj[kw][o].id) == 'number')){
-						//on garde des resultat pour des hint dans la 
-						//proposition a lusager lors de aucun result
-						this.arrLastHintResult.push(obj[kw][o].name);
-						//change to blue hint if word substr is found in the text
-						var strLiText = obj[kw][o].name;
-						//var arrNameWords = obj[o].name.split(' ');
-						var strMatch = '';
-						for(var p in arrWords){
-							strMatch += '^' + arrWords[p] + '|[ ]{1}' + arrWords[p] + '|'; 
-							}
-						//strip last pipe
-						if(strMatch != ''){
-							strMatch = strMatch.substr(0, (strMatch.length - 1));
-							strLiText = strLiText.replace(new RegExp(strMatch, 'gi'), function(m){
-								bFoundMatch = true;
-								return '<span class="hint">' + m + '</span>';
-								});
-							}
-						//Le <LI>
-						strDataContent += '<LI keyword-ids="' + obj[kw][o].id + '" keyword-word="' + obj[kw][o].name + '" keyword-type ="' + kw + '" class="single-result" preview-loaded="0" li-pos="' + iCmpt + '" id="lisr' + iCmpt + '"><DIV class="mclick" keyword-ids="' + obj[kw][o].id + '" keyword-word="' + obj[kw][o].name + '" keyword-type ="' + kw + '" li-pos="' + iCmpt + '">' + strLiText + '</DIV></LI>'; //0=id, 1=name
-						//increment
-						iCmpt++;
-						}
-					}
-				}
-			}
-		//si ion ne trouve pas de hint
-		if(bResetHint){
-			//set le input-bg
-			this.setInputBgBoxText(params, '');
-			//le premier LI	
-			this.setFirstLiWord('');
-			//on set les KWids focused
-			this.setFocusedKwIds('', '');
-			}
-		//flasg de match pour quand il appui enter quand meme
-		//car peut etre un permutation de lettre 
-		if(bFoundMatch){
-			this.bFoundAutoCompleteMatch = true;	
-			}
-		//si on a au moins un resultat d'un kwtype
-		if(this.bHaveAutoCompleteResult){
-			//get la position du serach box
-			var strData = '<UL class="listing" focus-id="0" focus-id-max="' + iNumTotalRows + '">' + strDataContent + '</UL>';
-			//on ajoute le data
-			$('#' + this.baseDivId).html(strData);
-			//on show	
-			$('#' + this.baseDivId).css({'display':'block'});	
-			//on met un listener pour le click sur les resultats
-			$('#' + this.baseDivId + ' .single-result > .mclick').data('params', params);
-			//parent ref
-			var mainAppz = this.mainAppz;
-			//si enabled
-			if(this.bEnableMouseOver){
-				//le mouse over du li pour ouvrir exercice
-				$('#' + this.baseDivId + ' .single-result > .mclick').mouseover(function(e){
-					
-					//on stop le timer de fetch preview exercise
-					clearTimeout(mainAppz.jautocomplete.timerFetchExercisePreview);
-					//on reset le pid du preview
-					mainAppz.jautocomplete.lastExercisePreviewPid = 0;
-					//on set les KWids focused
-					mainAppz.jautocomplete.setFocusedKwIds($(this).attr('keyword-ids'), $(this).attr('keyword-word'));
-					//on va loader un preview timer si reste longtemps dessus
-					if(mainAppz.jautocomplete.bEnableExercisePreview){
-						mainAppz.jautocomplete.timerFetchExercisePreview = setTimeout(mainAppz.jautocomplete.fetchExercisePreviewWithDelay.bind(mainAppz.jautocomplete, $(this).data('params'), mainAppz.jautocomplete.getFocusedKwIds(), $(this).attr('li-pos')), mainAppz.jautocomplete.timePreviewDelay);
-						}
-					});
-				//le mouse out
-				$('#' + this.baseDivId + ' .single-result > .mclick').mouseout(function(e){
-					//on stop le timer de fetch preview exercise
-					clearTimeout(mainAppz.jautocomplete.timerFetchExercisePreview);
-					//on reset le pid du preview
-					mainAppz.jautocomplete.lastExercisePreviewPid = 0;
-					//le focus one
-					var iFocusId = $(this).attr('li-pos');
-					//remove le UL
-					//$('#lisr' + iFocusId + ' > UL.exercises').css({'display':'none'});
-					$('#' + mainAppz.baseDivId + ' ' + '#lisr' + iFocusId + ' > UL.exercises').css({'display':'none'});
-					//check si avait deja un preview de loader = 1
-					//si oui setter le status a 2 pour eviter de 
-					//reloader pour rien la prochaine fois
-					//if($('#lisr' + iFocusId).attr('preview-loaded') == '1'){	
-					if($('#' + mainAppz.baseDivId + ' ' + '#lisr' + iFocusId).attr('preview-loaded') == '1'){	
-						//set l'attribute a non loaded
-						//$('#lisr' + iFocusId).attr('preview-loaded', '2');
-						$('#' + mainAppz.baseDivId + ' ' + '#lisr' + iFocusId).attr('preview-loaded', '2');
-						}	
-					});
-				}		
-			//on met un listener pour le click sur les resultats		
-			$('#' + this.baseDivId + ' .single-result > .mclick').click(function(e){
-				e.preventDefault();
-				var keywordIds = $(this).attr('keyword-ids');
-				var keywordWord = $(this).attr('keyword-word');
-				var params = $(this).data('params');
-				mainAppz.debug(params.input + ' -> Clicked');
-				//set le input  et nput-bg
-				mainAppz.jautocomplete.setInputBoxText(params, keywordWord, true);
-				//set le focus sur input
-				params.refinput.focus();
-				//set les keywords ids focused
-				mainAppz.jautocomplete.setFocusedKwIds(keywordIds, keywordWord);
-				//fetch le listing d'exercice en rapport avec les keyword ids
-				if(mainAppz.jsearch.getExerciceListingByKeywordIds(mainAppz.jautocomplete.getFocusedKwIds(), mainAppz.jautocomplete.getCurrentWord(params))){
-					//
-					mainAppz.jautocomplete.setLastSearchString(mainAppz.jautocomplete.getCurrentWord(params));		
-					}
-				//on eneleve le autocomplete
-				mainAppz.jautocomplete.resetSingleAutoComplete(params);
-				});
-			//on quitte
-			return;
-		}else{
-			//pas de resultat alors on enleve le li et les focused kw ids
-			this.setFirstLiWord('');
-			this.setFocusedKwIds('', '');
-			//on nettoie le input box bg
-			this.setInputBgBoxText(params, '');
-			//on dit que lon a rien
-			var data = '<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-title">' + this.jlang.t('no result') + '</LI></UL>'; 
-			//on ajoute le data
-			$('#' + this.baseDivId).html(data);
-			//on show	
-			$('#' + this.baseDivId).css({'display':'block'});
-			//on sen va byebye!
-			return;
-			}
-		};
 	
 	
 	//----------------------------------------------------------------------------------------------------------------------*	
@@ -990,105 +703,6 @@ function JAutoComplete(){
 		};
 
 	
-	//----------------------------------------------------------------------------------------------------------------------*	
-	this.fetchExercisePreviewWithDelay = function(params, strKwIds, strLiId){
-		//si enabled
-		if(this.bEnableExercisePreview){
-			//check si les exercice etait deja loade
-			//var strLoaded = $('#lisr' + strLiId).attr('preview-loaded');	
-			var strLoaded = $('#' + this.baseDivId + ' ' + '#lisr' + strLiId).attr('preview-loaded');	
-			//on envoi la requete au serveur pour aller chercher le data
-			if(strLoaded == '0'){
-				this.lastExercisePreviewPid = this.mainAppz.jsearch.getExerciceListingByKeywordIdsForPreview(params, strKwIds, strLiId);
-			}else if(strLoaded == '2'){
-				//cest que lon a deja le data alors 
-				//il faut juste le faire apparaitre de nouveau
-				//$('#lisr' + strLiId + ' > UL.exercises').css({'display':'block'});
-				$('#' + this.baseDivId + ' ' + '#lisr' + strLiId + ' > UL.exercises').css({'display':'block'});
-				//on remet le statut du preview a 1		
-				//$('#lisr' + strLiId).attr('preview-loaded', '1');	
-				$('#' + this.baseDivId + ' ' + '#lisr' + strLiId).attr('preview-loaded', '1');	
-				}
-			}
-		};
-
-
-	//----------------------------------------------------------------------------------------------------------------------*	
-	this.fetchExercisePreviewRFS = function(obj, params, strLiId, pid){
-		//
-		//check si le pid est le dernier, car certain resultat arrive plus tard que la derniere demande
-		if(this.lastExercisePreviewPid != pid){
-			//rien a faire
-			this.debug('REJECT(' + this.lastExercisePreviewPid + ') != ' + pid);
-			return;
-			}
-		//si le preview est deja loadeau cas ou il retourne dessus
-		//var strLoaded = $('#lisr' + strLiId).attr('preview-loaded');
-		var strLoaded = $('#' + this.baseDivId + ' ' + '#lisr' + strLiId).attr('preview-loaded');
-		//pas loader alors on y va avec les result
-		var oData = obj.data;
-		//le nom des filters	
-		var oFilters = obj.filters;	
-		if(strLoaded == '0'){
-			//on continue
-			var str = '<UL class="exercises">';
-			for(var o in oData){
-				//le LI
-				str += '<LI class="single-exercises">';	
-				//le image container	
-				str += '<DIV class="img-container">';
-				if(typeof(oData[o].thumb) == 'string'){
-					if(oData[o].thumb != ''){
-						str += '<img src="' + gExerciceImagePath + oData[o].thumb + '">'
-						}	
-					}
-				str += '</DIV>';		
-				//le titre
-				str += '<DIV class="text-container">';	
-				if(oData[o].shortTitle == ''){
-					str += oData[o].codeExercise;
-				}else{
-					str += oData[o].shortTitle;
-					}
-				//les filters si il y a
-				var strFilter = '';
-				if(typeof(oData[o].filter) == 'object'){
-					for(var p in oData[o].filter){
-						strFilter += oFilters[oData[o].filter[p]] + ', ';
-						}
-					}
-				//le long title
-				str += '<SPAN>';
-				if(oData[o].title != ''){
-					str += '<BR />' + oData[o].title;	
-					}
-				//les filteers si il y a
-				if(strFilter != ''){
-					str += '<BR /><i>(' + strFilter.substr(0, (strFilter.length - 2)) + ')</i>';
-					}
-				str += '</SPAN>';			
-				str += '</DIV>';			
-				str += '</LI>';		
-				}
-			//affiche combien il en reste
-			str += '<LI class="single-exercises maxcount">';
-			str += '<DIV class="text-container">';		
-			str += this.jlang.t('total') + obj.maxcount;
-			str += '</DIV>';		
-			str += '</LI>';			
-			//ferme le UL	
-			str += '</UL>';
-			//show result
-			//$('#lisr' + strLiId).append(str);
-			$('#' + this.baseDivId + ' ' + '#lisr' + strLiId).append(str);
-			//on change le status
-			//$('#lisr' + strLiId).attr('preview-loaded', 1);
-			$('#' + this.baseDivId + ' ' + '#lisr' + strLiId).attr('preview-loaded', 1);
-			}
-		return;
-		};
-
-
 	//----------------------------------------------------------------------------------------------------------------------*
 	/*
 	DATA:
@@ -1134,7 +748,7 @@ function JAutoComplete(){
 			$('#' + inputs.input).focus();	
 			}
 		//appz ref
-		mainAppz = this.mainAppz;	
+		var that = this;	
 		//le ref du onject jqeury selector pour eviter de reparcourrir a chaque fois
 		this.arrInputBox[inputs.input].refresult = $('#' + strContainerInput);	
 		this.arrInputBox[inputs.input].refinput = $('#' + inputs.input);
@@ -1144,7 +758,7 @@ function JAutoComplete(){
 		//selon le type serach
 		this.arrInputBox[inputs.input].refinput.keyup(function(e){
 			var oParams = $(this).data('params');
-			mainAppz.jautocomplete.fetchAutoCompleteData(e, $(this).val(), oParams);
+			that.fetchAutoCompleteData(e, $(this).val(), oParams);
 			});
 		};
 
@@ -1238,7 +852,7 @@ function JAutoComplete(){
 				}
 			}
 		//appz ref
-		var mainAppz = this.mainAppz;	
+		var that = this;	
 		//on met le conenu du msg dans le LI avaec un tag title
 		var data = '<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-msg">' + msg.replace(/\{\[WORD\]\}/g, '<b>"' + word + '"</b>') + '</LI></UL>'; 
 		//on ajoute le data
@@ -1252,7 +866,7 @@ function JAutoComplete(){
 				e.preventDefault();
 				var keywordWord = $(this).attr('keyword-word');
 				var params = $(this).data('params');	
-				mainAppz.jautocomplete.setInputFromHint(keywordWord, params);
+				that.setInputFromHint(keywordWord, params);
 				});			
 			}
 		//	

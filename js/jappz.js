@@ -37,10 +37,10 @@ function JAppz(){
 				console.error('No lang file, just quiting!')
 			});
 		//utils
-		this.jutils = new JUtils({
+		(this.jutils = new JUtils({
 			debug: this.args.debug,	
 			jlang: this.jlang,
-		}).init(); 
+		})).init(); 
 		//server
 		if(this.args.isLocaleDb){
 			//otherwise the jcomm will get it from the server
@@ -65,21 +65,23 @@ function JAppz(){
 			localeLang: this.args.localeLang
 		})).init();
 		//le search	
-		this.jsearch = new JSearch({
+		(this.jsearch = new JSearch({
 			debug: this.args.debug,
 			jlang: this.jlang,
-			mainappz:this, 
-			jcomm:this.jcomm
-		}).init(); 
+			jcomm:this.jcomm,
+		})).init(); 
 		//le autocomplete
 		this.jautocomplete = new JAutoComplete({
 			debug: this.args.debug,
 			jlang: this.jlang,
-			mainappz:this, 
+			jsearch:this.jsearch, 
+			jutils:this.jutils, 
 			uid:this.uid,	
 			word:this.args.currentSearchedWord,
 			focusoninput:this.args.focusOnInput,	
 		}).init(); 
+		//the autocomplete need to be to the jsearch
+		this.jsearch.registerAutoComplete(this.jautocomplete);
 		//container size
 		this.containerSize = {
 			h:0, 
