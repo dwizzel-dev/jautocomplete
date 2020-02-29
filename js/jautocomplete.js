@@ -229,16 +229,16 @@ window.JAutoComplete =
 
 		//---------------------------------------------------*
 		/*
-	1. sur le focus du LI 
-		a) changer le style et le focus
-		b) garder le mot qui a ete ecrit avant d'overwriter
-		c) remplacer le input par le contenu du LI qui a le focus et placer le cursor a la fin
-		
-	2. quand descend si atteint le bas alors retourne a la case INPUT
+		1. sur le focus du LI 
+			a) changer le style et le focus
+			b) garder le mot qui a ete ecrit avant d'overwriter
+			c) remplacer le input par le contenu du LI qui a le focus et placer le cursor a la fin
+			
+		2. quand descend si atteint le bas alors retourne a la case INPUT
 
-	3. quand monte si atteint le haut alors retourne a la case INPUT	
-	
-	*/
+		3. quand monte si atteint le haut alors retourne a la case INPUT	
+		
+		*/
 		this.changeLiFocus = function(strDirection, oParams) {
 			//
 			//base ref du autocomplete
@@ -338,12 +338,12 @@ window.JAutoComplete =
 			//var le serveur le fait pour les retours
 			//si on trouve des multiples espaces les remplacer
 			/*
-		if(str.match(/\s+/g)){
-			str = str.replace(/[\s]+/g, ' ');	
-			//on change la value dans le input box
-			this.setInputBoxText(params, str, false);		
-			}
-		*/
+			if(str.match(/\s+/g)){
+				str = str.replace(/[\s]+/g, ' ');	
+				//on change la value dans le input box
+				this.setInputBoxText(params, str, false);		
+				}
+			*/
 			//on va aller chercher les case de kwtype qu'il a coche qui se limit a trois
 			//la string des case coche
 			var strKwType = "";
@@ -371,7 +371,7 @@ window.JAutoComplete =
 			this.bHaveAutoCompleteResult = false;
 			//on flag comme quoi on na pas de match encore
 			this.bFoundAutoCompleteMatch = false;
-			//on rest le array des dernier resultat du autocomplete pour les hint
+			//on reset le array des dernier resultat du autocomplete pour les hint
 			this.arrLastHintResult = [];
 			//pour le meme resultat
 			this.setLastSearchString(str);
@@ -391,6 +391,7 @@ window.JAutoComplete =
 
 		//---------------------------------------------------*
 		this.fetchAutoCompleteData = function(evnt, str, params) {
+			this.debug('fetchAutoCompleteData', evnt, str, params);
 			//@DWIZZEL:
 			//this.setInputBgBoxText(params, '');
 
@@ -406,17 +407,6 @@ window.JAutoComplete =
 				this.hideAutoComplete();
 				return;
 			}
-			//on va stripper les multiple space en un seul
-			//var le serveur le fait pour les retours
-			//si on trouve des multiples espaces les remplacer
-			//BUG creer un fuck sur le carret
-			/*
-			if(str.match(/\s+/g)){
-				str = str.replace(/[\s]+/g, ' ');	
-				//on change la value dans le input box
-				this.setInputBoxText(params, str, false);		
-				}
-			*/
 			//si le premier chars est un space alors on recule le input de 1
 			if (str.charAt(0) === " ") {
 				//on recule et no change le input box
@@ -427,9 +417,7 @@ window.JAutoComplete =
 				//return;
 			}
 			//on trim les avant et apres spaces
-			//this.debug('STRING:"' + str + '"');
 			str = str.trim();
-			//this.debug('STRING.TRIMMED:"' + str + '"');
 			//si c'est un <SPACE> avant une lettre alors ne sera pas bon car le input-bg va etre deplace
 			//alors on remet le cursor au debut et on efface le input et input-bg
 			if (evnt.which == "32") {
@@ -498,50 +486,30 @@ window.JAutoComplete =
 				//press <ENTER>
 				//pas etre vide
 				if (str != "" && str.length >= this.minStrLen) {
-					//le bloolean du fetch
-					var bFetch = true;
-					//check si vide
-					if (this.getFocusedKwIds() == "") {
-						bFetch = false;
-					} else {
-						//on change le input box avec le contenu de recherche word
-						//car peut-etre que les KwId sont setter mais pas le current word
-						this.setInputBoxText(params, this.getCurrentWord(params), true);
-					}
+					//le bloolean du fetch, //check si vide
+					var bFetch = (this.getFocusedKwIds() !== "");
 					//est-ce que l'on fait une recherche texte
-					//CAS 1.lusager a un autocomplete result
-					//		mais veux rechercher les mot qu'il a tape quand meme
-					//		sans faire de choix dans le autocomplete
-					//CAS 2.lusager na aucun result dans le autocomplete
-					//		mais veux quand meme lancer sa recherche avec
-					//		les mots tapes, mais on sait en avance quil naura
-					//		aucun retour, car le autocomplete tiens ses resultats
-					//		des titres et keywords, si na rien trouver, il ne trouvera
-					//		pas plus, alors on lui dit que ce quil a tape est soumis
-					//		a notre equipe qui fera un analyse des mots tapes
-					//		a savoir si il le rajouteront ou si cetait
-					//		est une erreur de frapper
-					//CAS 3.lusager lance la recherche avec le mot propose directement
-					//		dans sa case de input (le pluis rapide et facile )
 					//fetch le listing d'exercice en rapport avec les keyword ids
 					//si il y en avait
 					if (bFetch) {
-						if (this.getFocusedKwIds() !== "") {
-							this.jsearch
-								.getExerciceListingByKeywordIds(
-									this.getFocusedKwIds(),
-									this.getCurrentWord(params)
-								)
-								.then(
-									function(res) {
-										//will go away on window.location.href
-									}.bind(this)
-								);
-							//on eneleve le autocomplete car on a quelque chose a chercher
-							this.resetSingleAutoComplete(params);
-							//
-							this.setLastSearchString(this.getCurrentWord(params));
-						}
+						//on change le input box avec le contenu de recherche word
+						//car peut-etre que les KwId sont setter mais pas le current word
+						this.setInputBoxText(params, this.getCurrentWord(params), true);
+						//on eneleve le autocomplete car on a quelque chose a chercher
+						this.resetSingleAutoComplete(params);
+						//
+						this.setLastSearchString(this.getCurrentWord(params));
+						//lance la recherche et fo vers la page
+						this.jsearch
+							.getExerciceListingByKeywordIds(
+								this.getFocusedKwIds(),
+								this.getCurrentWord(params)
+							)
+							.then(
+								function(res) {
+									//will go away on window.location.href
+								}.bind(this)
+							);
 					} else {
 						//il ne veut rien savoir des mots du autocomplete
 						//alors on lance une recherche text au serveur
@@ -575,7 +543,6 @@ window.JAutoComplete =
 					//on reset le last search car le autocomplete est disparue et si retappe la meme recherche
 					//il n'ira pas la fetcher
 					//this.setLastSearchString('');
-					//reset le pid car la case est vide alors meme si il y a un retour ce n'est pas le bon
 					
 				}
 			}
@@ -583,13 +550,13 @@ window.JAutoComplete =
 
 		//---------------------------------------------------*
 		/*
-	PARAMS:
-		.input:'input-search',
-		.layer:'main-input',
-		.type:'exercise', 
-		.position:'under',
-		
-	*/
+		PARAMS:
+			.input:'input-search',
+			.layer:'main-input',
+			.type:'exercise', 
+			.position:'under',
+			
+		*/
 		this.fetchAutoCompleteDataRFS = function(
 			obj,
 			params,
@@ -986,8 +953,13 @@ window.JAutoComplete =
 			params.refinput.focus();
 			//on creer un fake event sur le input box
 			var evnt = $.Event("keyup", {
-				which: 0 //un rien
-				//key: "Enter"
+				which: 0, //un rien
+				/*
+				keyCode: 13,
+				which: 13, //un rien
+				key: "Enter",
+				type: "keyup"
+				*/
 			});
 			//on enleve le autoaocmplgte
 			this.hideAutoComplete();
