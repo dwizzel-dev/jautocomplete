@@ -84,7 +84,7 @@ define('PATH_WEB_NORMAL', 'http://www.blank-site.com/');/*the normal address of 
 //OU
 // http://www.blank-site.com/index.php?&lang=en_US&path=exercises/library/geriatric/
 //
-define('SIMPLIFIED_URL', 1);
+define('SIMPLIFIED_URL', 0);
 if(SIMPLIFIED_URL){
 	define('PATH_HOME', PATH_WEB);	
 	define('PATH_SERVICE', PATH_WEB.'service/');
@@ -93,7 +93,7 @@ if(SIMPLIFIED_URL){
 	define('PATH_FORM_PROCESS', PATH_WEB.'process/');
 }else{
 	define('PATH_HOME', PATH_WEB.'index.php');
-	define('PATH_SERVICE', PATH_WEB.'service');
+	define('PATH_SERVICE', PATH_WEB.'service.php');
 	define('PATH_OFFLINE', PATH_WEB.'offline.php');
 	define('PATH_404', PATH_WEB.'404.php');
 	define('PATH_FORM_PROCESS', PATH_WEB.'process-form.php');

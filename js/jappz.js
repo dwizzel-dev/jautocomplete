@@ -38,7 +38,7 @@ window.JAppz =
 					}.bind(this)
 				)
 				.catch(function(err) {
-					console.error("No lang file, just quiting!");
+					this.error("No lang file, just quiting!");
 				});
 			//server
 			if (this.args.isLocaleDb) {
@@ -52,7 +52,7 @@ window.JAppz =
 				}))
 					.init()
 					.catch(function(err) {
-						console.error("No DB File file, just quiting!");
+						this.error("No DB File file, just quiting!");
 					});
 			}
 			//comm obj

@@ -79,7 +79,6 @@ window.JComm =
 			$.ajax({
 				parentclass: this,
 				timestamp: timestamp,
-				callerclass: callerClass,
 				type: "GET",
 				headers: { "cache-control": "no-cache" },
 				cache: false,
@@ -94,12 +93,11 @@ window.JComm =
 					data: JSON.stringify(data)
 				},
 				success: function(dataRtn) {
-					//parse data
 					//try catch on it because of php errors , notice, warnings or scrumbled data
 					var error = "";
 					var obj;
 					try {
-						eval("var obj = " + dataRtn + ";");
+						var obj = JSON.parse(dataRtn);
 					} catch (e) {
 						error = e;
 					}
@@ -107,29 +105,30 @@ window.JComm =
 					if (typeof obj != "object") {
 						//set state
 						obj = {
+							usermsg: this.parentclass.jlang.t("server_error_on_service_call"),
 							msgerrors:
-								"<b>" +
 								this.parentclass.jlang.t("server_error_on_service_call") +
-								"</b><br /><br />" +
-								this.section +
-								"." +
-								this.service +
-								"<br /><br /><b>" +
+								"\n" +
+								this.section + "." + this.service +
+								"\n" +
 								this.parentclass.jlang.t("service_error") +
-								"</b><br /><br />" +
+								"\n" +
 								error
 						};
+						//call the caller
+						reject(obj);
+					}else{
+						//call the caller
+						resolve(obj);
 					}
-					//call the caller
-					resolve(obj);
 				},
 				error: function(dataRtn, ajaxOptions, thrownError) {
 					//set state
 					obj = {
-						msgerrors:
-							"<b>" +
+						usermsg: this.parentclass.jlang.t("server_error_on_service_call"),
+						msgerrors: 
 							this.parentclass.jlang.t("server_error_on_service_call") +
-							"</b><br /><br />" +
+							"\n" +
 							this.parentclass.formatErrorMessage(
 								dataRtn,
 								thrownError,
@@ -137,7 +136,7 @@ window.JComm =
 							)
 					};
 					//call the caller
-					resolve(obj);
+					reject(obj);
 				}
 			});
 			//

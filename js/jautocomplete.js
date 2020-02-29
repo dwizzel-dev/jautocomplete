@@ -283,16 +283,22 @@ window.JAutoComplete =
 			//pour le meme resultat
 			this.lastSearchString = str;
 			//on envoi la requete au serveur
-			this.jsearch.fetchAutoCompleteData(str, strKwType).then(
-				function(res) {
-					this.fetchAutoCompleteDataRFS(
-						res.data.result,
-						str,
-						strKwType,
-						res.data.cword
-					);
-				}.bind(this)
-			);
+			this.jsearch.fetchAutoCompleteData(str, strKwType)
+				.then(
+					function(res) {
+						this.fetchAutoCompleteDataRFS(
+							res.data.result,
+							str,
+							strKwType,
+							res.data.cword
+						);
+					}.bind(this)
+				).catch(
+					function(res) {
+						this.error(res.msgerrors);
+						this.showResultMsg(res.usermsg);
+					}.bind(this)
+				);
 		};
 
 		//---------------------------------------------------*
@@ -422,12 +428,12 @@ window.JAutoComplete =
 									);
 							} else {
 								//on lui dit que son mot est soumis a notre equipe
-								this.sendingWordToOurTeamForValidation();
+								this.showResultMsg();
 							}
 						} else {
 							//si on navait aucun retour dans le autocomplete alors
 							//on lui dit que son mot est soumis a notre equipe
-							this.sendingWordToOurTeamForValidation();
+							this.showResultMsg();
 						}
 					}
 				}
@@ -673,9 +679,9 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.sendingWordToOurTeamForValidation = function() {
-			var word = this.lastSearchString;
-			var msg = this.jlang.t("no_result_for_word");
+		this.showResultMsg = function() {
+			//if we had another message to show, like on service failed
+			var msg = (typeof arguments[0] !== 'undefined') ? arguments[0] : this.jlang.t("no_result_for_word");
 			//si on avait des resultat de hint dans le autocomplete
 			//on pourrait lui proposer ceux-la
 			if (this.bHaveAutoCompleteResult) {
@@ -691,7 +697,7 @@ window.JAutoComplete =
 			//on met le conenu du msg dans le LI avaec un tag title
 			var data =
 				'<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-msg">' +
-				msg.replace('{{WORD}}', '<b>"' + word + '"</b>') +
+				msg.replace('{{WORD}}', '<b>"' +  this.lastSearchString + '"</b>') +
 				"</LI></UL>";
 			//on ajoute le data
 			$("#" + this.baseDivId).html(data);
