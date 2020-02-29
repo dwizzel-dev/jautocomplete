@@ -84,9 +84,6 @@ function JAutoComplete(){
 			//this.bFoundAutoCompleteMatch = true;
 			//this.bHaveAutoCompleteResult = true;
 			}
-			
-		//	
-		return this;	
 		};
 		
 		
@@ -279,10 +276,11 @@ function JAutoComplete(){
 				}else{
 					//on set sur le dernier LI
 					$('#lisr' + iMaxFocusId).addClass('focus');	
+					var el = $('#' + this.baseDivId + ' ' + '#lisr' + iMaxFocusId);
 					//on change le input box avec le contenu du LI
-					this.setInputBoxText(oParams, $('#' + this.baseDivId + ' ' + '#lisr' + iMaxFocusId).attr('keyword-word'), true);
+					this.setInputBoxText(oParams, el.attr('keyword-word'), true);
 					//on set les KWids focused
-					this.setFocusedKwIds($('#' + this.baseDivId + ' ' + '#lisr' + iMaxFocusId).attr('keyword-ids'), $('#' + this.baseDivId + ' ' + '#lisr' + iMaxFocusId).attr('keyword-word'));
+					this.setFocusedKwIds(el.attr('keyword-ids'), el.attr('keyword-word'));
 					//on set l'attribut
 					$(strUlListingRef).attr('focus-id', iMaxFocusId);
 					}
@@ -296,12 +294,13 @@ function JAutoComplete(){
 				this.setFocusedKwIds('', '');
 				}
 		}else{
+			var el = $('#' + this.baseDivId + ' ' + '#lisr' + iFocusId);
 			//on set le focus au LI
-			$('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).addClass('focus');
+			el.addClass('focus');
 			//on change le input box avec le contenu du LI
-			this.setInputBoxText(oParams, $('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).attr('keyword-word'), true);
+			this.setInputBoxText(oParams, el.attr('keyword-word'), true);
 			//on set les KWids focused
-			this.setFocusedKwIds($('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).attr('keyword-ids'), $('#' + this.baseDivId + ' ' + '#lisr' + iFocusId).attr('keyword-word'));
+			this.setFocusedKwIds(el.attr('keyword-ids'), el.attr('keyword-word'));
 			//on set l'attribut
 			$(strUlListingRef).attr('focus-id', iFocusId);
 			}
@@ -326,6 +325,8 @@ function JAutoComplete(){
 		//on va aller chercher les case de kwtype qu'il a coche qui se limit a trois
 		//la string des case coche
 		var strKwType = '';
+		/*
+		var strKwType = '';
 		//lop dans nos 3 choix
 		for(var i=0; i<3; i++){
 			//ref de jquery object	
@@ -342,6 +343,7 @@ function JAutoComplete(){
 			//value by default is keyword only
 			strKwType = '1';
 			}
+		*/	
 		//on flag comme quoi on n'a pas de resultat encore du autocomplete
 		this.bHaveAutoCompleteResult = false;
 		//on flag comme quoi on na pas de match encore
@@ -437,7 +439,7 @@ function JAutoComplete(){
 					//mais on va laisser un delai car peu taper tres vite (comme yves haha!) et 
 					//ca ne sert a rien d'aller chercher tout si il rajoute d'autre truc apres
 					//on start un autre timer avec la nouvelle requete
-					this.timerFetchAutoComplete = setTimeout(this.fetchAutoCompleteDataWithDelay.bind(this, str, params), this.timeDelay);	
+					this.timerFetchAutoComplete = setTimeout(this.fetchAutoCompleteDataWithDelay.bind(this, str, params), this.timeDelay);
 				}else{
 					//on enle le result vu que lon a plus rien a chercher
 					this.resetSingleAutoComplete(params);		
@@ -622,7 +624,9 @@ function JAutoComplete(){
 								});
 							}
 						//Le <LI>
-						data += '<LI keyword-ids="' + obj[o].id + '" keyword-word="' + obj[o].name + '" keyword-type ="' + kwtype + '" class="single-result" preview-loaded="0" li-pos="' + iCmpt + '" id="lisr' + iCmpt + '"><DIV class="mclick" keyword-ids="' + obj[o].id + '" keyword-word="' + obj[o].name + '" keyword-type ="' + kwtype + '" li-pos="' + iCmpt + '">' + strLiText + '</DIV></LI>'; //0=id, 1=name
+						data += '<LI keyword-ids="' + obj[o].id + '" keyword-word="' + obj[o].name + 
+							'" keyword-type ="' + kwtype + '" class="single-result" preview-loaded="0" li-pos="' + iCmpt + '" id="lisr' + 
+							iCmpt + '"><DIV class="mclick" keyword-ids="' + obj[o].id + '" keyword-word="' + obj[o].name + '" keyword-type ="' + kwtype + '" li-pos="' + iCmpt + '">' + strLiText + '</DIV></LI>'; //0=id, 1=name
 						//increment
 						iCmpt++;
 						}
@@ -649,13 +653,10 @@ function JAutoComplete(){
 					.css({'display':'block'});	
 				//on keep du data
 				$('#' + this.baseDivId + ' .single-result > .mclick')
-					.data('params', params)
 					.click($.proxy(function(e){
 						e.preventDefault();
 						var keywordIds = $(e.target).attr('keyword-ids');
 						var keywordWord = $(e.target).attr('keyword-word');
-						var params = $(e.target).data('params');
-						this.debug(params.input + ' -> Clicked');
 						//set le input  et nput-bg
 						this.setInputBoxText(params, keywordWord, true);
 						//set le focus sur input
@@ -679,7 +680,8 @@ function JAutoComplete(){
 				//on nettoie le input box bg
 				this.setInputBgBoxText(params, '');
 				//on dit que lon a rien
-				var data = '<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-title">' + this.jlang.t('no_result') + '</LI></UL>';
+				var data = '<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-title">' + 
+					this.jlang.t('no_result') + '</LI></UL>';
 				//on ajoute le data
 				$('#' + this.baseDivId)
 					.html(data)
@@ -846,7 +848,8 @@ function JAutoComplete(){
 				}
 			}
 		//on met le conenu du msg dans le LI avaec un tag title
-		var data = '<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-msg">' + msg.replace(/\{\[WORD\]\}/g, '<b>"' + word + '"</b>') + '</LI></UL>'; 
+		var data = '<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-msg">' + 
+			msg.replace(/\{\[WORD\]\}/g, '<b>"' + word + '"</b>') + '</LI></UL>'; 
 		//on ajoute le data
 		$('#' + this.baseDivId).html(data);
 		//on show	
@@ -854,13 +857,9 @@ function JAutoComplete(){
 		//on met l'action sur les single-hints si on en avait evidement
 		if(this.bHaveAutoCompleteResult && this.arrLastHintResult.length > 0){
 			$('#' + this.baseDivId + ' .single-hint')
-				.data('params', params)
 				.click($.proxy(function(e){
 					e.preventDefault();
-					this.setInputFromHint(
-						$(e.target).attr('keyword-word'), 
-						$(e.target).data('params')
-						);
+					this.setInputFromHint($(e.target).attr('keyword-word'), params);
 					}, this));			
 			}
 		//	

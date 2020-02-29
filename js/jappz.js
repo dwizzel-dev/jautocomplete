@@ -71,7 +71,7 @@ function JAppz(){
 			jcomm:this.jcomm,
 		})).init(); 
 		//le autocomplete
-		this.jautocomplete = new JAutoComplete({
+		(this.jautocomplete = new JAutoComplete({
 			debug: this.args.debug,
 			jlang: this.jlang,
 			jsearch:this.jsearch, 
@@ -79,7 +79,7 @@ function JAppz(){
 			uid:this.uid,	
 			word:this.args.currentSearchedWord,
 			focusoninput:this.args.focusOnInput,	
-		}).init(); 
+		})).init(); 
 		//the autocomplete need to be to the jsearch
 		this.jsearch.registerAutoComplete(this.jautocomplete);
 		//container size

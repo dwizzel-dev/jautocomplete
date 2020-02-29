@@ -44,7 +44,7 @@ jQuery(document).ready(function($){
 		serverImagePath: '<?php echo PATH_IMAGE; ?>',
 		mainContainer: '.frontpage-block',
 		currentSearchedWord: '<?php echo $getQuerySearch; ?>',
-		focusOnInput: false,	
+		focusOnInput: true,	
 		searchContainer: '.<?php echo $tmpStrWidgetNameUID; ?>',
 	})).init();
 });	
