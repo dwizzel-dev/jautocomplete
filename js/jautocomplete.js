@@ -34,6 +34,11 @@ window.JAutoComplete =
 			this.bFocusOnInput = this.args.focusoninput;
 			//array of input box name and ref to jquery selector object
 			this.arrInputBox = [];
+			//the named of the inputs and the container divs
+			this.inputs = {
+				layer: "main-input-" + this.uid,
+				input: "search-input-" + this.uid
+			};
 			//les dernier resultat du autocomplete pour reproposer lors dun press <ENTER>
 			this.arrLastHintResult = [];
 			//have auto complete returned from server
@@ -107,6 +112,7 @@ window.JAutoComplete =
 		//---------------------------------------------------*
 		this.create = function() {
 			this.addInputBox();
+			this.addLiSingleResultOnClick();
 		};
 
 		//---------------------------------------------------*
@@ -694,13 +700,7 @@ window.JAutoComplete =
 			
 		*/
 		this.addInputBox = function() {
-			var inputs = {
-				layer: "main-input-" + this.uid,
-				input: "search-input-" + this.uid
-			};
-			//ajoute au array
-			this.arrInputBox[inputs.input] = inputs;
-			var strContainerInput = inputs.layer + "-div";
+			var strContainerInput = this.inputs.layer + "-div";
 			//str html
 			//le container des inputs
 			var str = '<div id="' + strContainerInput + '">';
@@ -708,9 +708,9 @@ window.JAutoComplete =
 			//le input en bg aura toujours le meme nom avec "-bg" en plus
 			str +=
 				'<div class="input"><input name="' +
-				inputs.input +
+				this.inputs.input +
 				'-bg" id="' +
-				inputs.input +
+				this.inputs.input +
 				'-bg" type="text" disabled autocomplete="off" maxlength="256" spellcheck="false" value="' +
 				this.currentSearchWord +
 				'" class="input-bg" placeholder="' +
@@ -719,9 +719,9 @@ window.JAutoComplete =
 			//le input principal
 			str +=
 				'<div class="input"><input name="' +
-				inputs.input +
+				this.inputs.input +
 				'" id="' +
-				inputs.input +
+				this.inputs.input +
 				'" class="translucide" type="text" autocomplete="off" maxlength="256" spellcheck="false" value="' +
 				this.currentSearchWord +
 				'"></div>';
@@ -731,35 +731,29 @@ window.JAutoComplete =
 			//ferme le div container
 			str += "</div>";
 			//on va creer le input box dans le laqyer desire
-			$("#" + inputs.layer).html(str);
+			$("#" + this.inputs.layer).html(str);
 			//on va setter le focus dessus
 			if (this.bFocusOnInput) {
-				$("#" + inputs.input).focus();
+				$("#" + this.inputs.input).focus();
 			}
 			//le ref du onject jqeury selector pour eviter de reparcourrir a chaque fois
-			this.arrInputBox[inputs.input].refresult = $("#" + strContainerInput);
-			this.arrInputBox[inputs.input].refinput = $("#" + inputs.input);
-			this.arrInputBox[inputs.input].refinputbg = $("#" + inputs.input + "-bg");
+			//ajoute au array
+			this.arrInputBox[this.inputs.input] = Object.assign(this.inputs, {
+				refresult: $("#" + strContainerInput),
+				refinput: $("#" + this.inputs.input),
+				refinputbg: $("#" + this.inputs.input + "-bg")
+			});
 			//all inputs keyup
 			//selon le type serach
-			this.arrInputBox[inputs.input].refinput.keyup(
+			this.arrInputBox[this.inputs.input].refinput.keyup(
 				$.proxy(function(e) {
 					this.fetchAutoCompleteData(
 						e,
 						$(e.target).val(),
-						this.arrInputBox[inputs.input]
+						this.arrInputBox[this.inputs.input]
 					);
 				}, this)
 			);
-		};
-
-		//---------------------------------------------------*
-		this.rmInputBox = function(strInputName) {
-			//event du butt
-			this.arrInputBox[strInputName].refinput.unbind();
-			this.arrInputBox[strInputName].refinputbg.unbind();
-			//
-			delete this.arrInputBox[strInputName];
 		};
 
 		//---------------------------------------------------*
@@ -900,6 +894,40 @@ window.JAutoComplete =
 
 		};
 
+		//---------------------------------------------------*
+		this.addLiSingleResultOnClick = function() {
+			$('#' + this.baseDivId).on('click', '.single-result', 
+				$.proxy(function(e) {
+					e.preventDefault();
+					var keywordIds = $(e.target).attr("keyword-ids");
+					var keywordWord = $(e.target).attr("keyword-word");
+					//set le input  et nput-bg
+					this.setInputBoxText(params, keywordWord, true);
+					//set le focus sur input
+					params.refinput.focus();
+					//set les keywords ids focused
+					this.setFocusedKwIds(keywordIds, keywordWord);
+					//fetch le listing d'exercice en rapport avec les keyword ids
+					if (this.focusedKwIds !== "") {
+						//
+						this.setLastSearchString(this.currentSearchWord);
+						//fetch
+						this.jsearch
+							.getExerciceListingByKeywordIds(
+								this.focusedKwIds,
+								this.currentSearchWord
+							)
+							.then(
+								function(res) {
+									//will go away on window.location.href
+								}.bind(this)
+							);
+						//on eneleve le autocomplete
+						this.resetSingleAutoComplete(params);	
+					}
+				}, this)
+			);
+		};
 
 		//----------------------------------------------------------
 		//inject code in them for debugging
