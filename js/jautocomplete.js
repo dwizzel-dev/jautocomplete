@@ -121,7 +121,7 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.setCarretRange = function(params, start, end) {
+		this.setCarretRange = function(start, end) {
 			//on place le cursor
 			this.inputBox.refinput.prop("selectionStart", start);
 			this.inputBox.refinput.prop("selectionEnd", end);
@@ -143,17 +143,17 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.setInputBoxText = function(oParams, str, bUpdateBg) {
+		this.setInputBoxText = function(str, bUpdateBg) {
 			//on reset le -bg
 			if (bUpdateBg) {
-				this.setInputBgBoxText(this.inputBox, "");
+				this.setInputBgBoxText("");
 			}
 			//le front
 			this.inputBox.refinput.val(str);
 		};
 
 		//---------------------------------------------------*
-		this.setInputBgBoxText = function(oParams, str) {
+		this.setInputBgBoxText = function(str) {
 			//il va falloir checker si le mot est compose et dans le bon sens aussi
 			//sinon il ne faut pas remplir la case avec le hint
 			//il va falloir faire les bold dans la liste de choix LI aussi
@@ -170,14 +170,7 @@ window.JAutoComplete =
 				this.inputBox.refinputbg.attr("placeholder", str);
 			}
 		};
-
-		//---------------------------------------------------*
-		this.getInputBoxText = function(oParams) {
-			//juste le bg input
-			//le front
-			return this.inputBox.refinput.val();
-		};
-
+		
 		//---------------------------------------------------*
 		this.trimStringBeginning = function(str) {
 			//
@@ -210,7 +203,7 @@ window.JAutoComplete =
 		3. quand monte si atteint le haut alors retourne a la case INPUT	
 		
 		*/
-		this.changeLiFocus = function(strDirection, oParams) {
+		this.changeLiFocus = function(strDirection) {
 			//
 			//base ref du autocomplete
 			var strUlListingRef = "#" + this.baseDivId + " > UL.listing";
@@ -247,9 +240,9 @@ window.JAutoComplete =
 				if (iFocusId === 0) {
 					//on doit remettre ce que l'on a garde en memoire
 					//car revient sur le input box apres etre passe d'un LI a l'autre
-					this.setInputBoxText(this.inputBox, this.lastTypedWord, true);
+					this.setInputBoxText(this.lastTypedWord, true);
 					//on remet le bg au permier choix du LI
-					this.setInputBgBoxText(this.inputBox, this.firstLiWord);
+					this.setInputBgBoxText(this.firstLiWord);
 				}
 			}
 			//si le focus est 0
@@ -268,7 +261,7 @@ window.JAutoComplete =
 						$("#lisr" + iMaxFocusId).addClass("focus");
 						var el = $("#" + this.baseDivId + " " + "#lisr" + iMaxFocusId);
 						//on change le input box avec le contenu du LI
-						this.setInputBoxText(this.inputBox, el.attr("keyword-word"), true);
+						this.setInputBoxText(el.attr("keyword-word"), true);
 						//on set les KWids focused
 						this.setFocusedKwIds(
 							el.attr("keyword-ids"),
@@ -293,7 +286,7 @@ window.JAutoComplete =
 				var kIds = el.attr("keyword-ids");
 				var kWord = el.attr("keyword-word");
 				//on change le input box avec le contenu du LI
-				this.setInputBoxText(this.inputBox, kWord, true);
+				this.setInputBoxText(kWord, true);
 				//on set les KWids focused
 				this.setFocusedKwIds(kIds, kWord);
 				//on set l'attribut
@@ -303,7 +296,7 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.fetchAutoCompleteDataWithDelay = function(str, params) {
+		this.fetchAutoCompleteDataWithDelay = function(str) {
 			//on va aller chercher les case de kwtype qu'il a coche qui se limit a trois
 			//la string des case coche
 			var strKwType = "";
@@ -330,7 +323,7 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.fetchAutoCompleteData = function(evnt, str, params) {
+		this.fetchAutoCompleteData = function(evnt, str) {
 			//on arrete le timer si il y en avait un car la requete est nouvelle et l,autre n'est plus valide
 			clearTimeout(this.timerFetchAutoComplete);
 			//les event poru lesquelle on ne fera rien genre : <SHIFT + LEFT_ARROW> etc...
@@ -346,9 +339,9 @@ window.JAutoComplete =
 			//si le premier chars est un space alors on recule le input de 1
 			if (str.charAt(0) === " ") {
 				//on recule et no change le input box
-				this.setInputBoxText(this.inputBox, this.trimStringBeginning(str), false);
+				this.setInputBoxText(this.trimStringBeginning(str), false);
 				//on place le cursor au debut
-				this.setCarretRange(this.inputBox, 0, 0);
+				this.setCarretRange(0, 0);
 				//on sort pas vraiment besoin car doit faire la recherche avec ce qui reste
 				//return;
 			}
@@ -359,7 +352,7 @@ window.JAutoComplete =
 			if (evnt.which == "32") {
 				//check si vide alors on retourne au debut de la string
 				if (str == "") {
-					this.setInputBoxText(this.inputBox, "", true);
+					this.setInputBoxText("", true);
 					return;
 				}
 			}
@@ -376,14 +369,14 @@ window.JAutoComplete =
 				}
 				//on reset le -bg
 				//@DWIZZEL
-				this.setInputBgBoxText(this.inputBox, "");
+				this.setInputBgBoxText("");
 				//on check pour les <ARROW> et autres touche
 				if (evnt.which == "38") {
 					//GO UP
-					this.changeLiFocus("up", this.inputBox);
+					this.changeLiFocus("up");
 				} else if (evnt.which == "40") {
 					//GO DOWN
-					this.changeLiFocus("down", this.inputBox);
+					this.changeLiFocus("down");
 				} else {
 					//a chaque chars qu'il tape on va mettre le premier choix dans le input du BG
 					//si pas vide faire la recherche
@@ -395,12 +388,12 @@ window.JAutoComplete =
 						//ca ne sert a rien d'aller chercher tout si il rajoute d'autre truc apres
 						//on start un autre timer avec la nouvelle requete
 						this.timerFetchAutoComplete = setTimeout(
-							this.fetchAutoCompleteDataWithDelay.bind(this, str, this.inputBox),
+							this.fetchAutoCompleteDataWithDelay.bind(this, str),
 							this.timeDelay
 						);
 					} else {
 						//on enle le result vu que lon a plus rien a chercher
-						this.resetSingleAutoComplete(this.inputBox);
+						this.resetSingleAutoComplete();
 						//on reset le last search car le autocomplete est disparue et si retappe la meme recherche
 						//il n'ira pas la fetcher
 						this.setLastSearchString("");
@@ -425,7 +418,7 @@ window.JAutoComplete =
 					if (bFetch) {
 						//on change le input box avec le contenu de recherche word
 						//car peut-etre que les KwId sont setter mais pas le current word
-						this.setInputBoxText(this.inputBox, this.currentSearchWord, true);
+						this.setInputBoxText(this.currentSearchWord, true);
 						//
 						this.setLastSearchString(this.currentSearchWord);
 						//lance la recherche et fo vers la page
@@ -440,7 +433,7 @@ window.JAutoComplete =
 								}.bind(this)
 							);
 						//on eneleve le autocomplete car on a quelque chose a chercher
-						this.resetSingleAutoComplete(this.inputBox);
+						this.resetSingleAutoComplete();
 							
 					} else {
 						//il ne veut rien savoir des mots du autocomplete
@@ -463,12 +456,12 @@ window.JAutoComplete =
 									);
 							} else {
 								//on lui dit que son mot est soumis a notre equipe
-								this.sendingWordToOurTeamForValidation(this.inputBox);
+								this.sendingWordToOurTeamForValidation();
 							}
 						} else {
 							//si on navait aucun retour dans le autocomplete alors
 							//on lui dit que son mot est soumis a notre equipe
-							this.sendingWordToOurTeamForValidation(this.inputBox);
+							this.sendingWordToOurTeamForValidation();
 						}
 					}
 					//on reset le last search car le autocomplete est disparue et si retappe la meme recherche
@@ -534,7 +527,7 @@ window.JAutoComplete =
 							//si on le garde cest ce qui sera lance
 							this.setFirstLiWord(obj[0].name);
 							//set le input-bg
-							this.setInputBgBoxText(this.inputBox, this.firstLiWord);
+							this.setInputBgBoxText(this.firstLiWord);
 							//on efface les kwids l'usager ne l' pas choisi de lui meme
 							this.setFocusedKwIds("", "");
 						} else {
@@ -586,7 +579,7 @@ window.JAutoComplete =
 					//si ion ne trouve pas de hint
 					if (bResetHint) {
 						//set le input-bg
-						this.setInputBgBoxText(this.inputBox, "");
+						this.setInputBgBoxText("");
 						//le premier LI
 						this.setFirstLiWord("");
 						//on set les KWids focused
@@ -609,7 +602,7 @@ window.JAutoComplete =
 							var keywordIds = $(e.target).attr("keyword-ids");
 							var keywordWord = $(e.target).attr("keyword-word");
 							//set le input  et nput-bg
-							this.setInputBoxText(this.inputBox, keywordWord, true);
+							this.setInputBoxText(keywordWord, true);
 							//set le focus sur input
 							this.inputBox.refinput.focus();
 							//set les keywords ids focused
@@ -630,7 +623,7 @@ window.JAutoComplete =
 										}.bind(this)
 									);
 								//on eneleve le autocomplete
-								this.resetSingleAutoComplete(this.inputBox);	
+								this.resetSingleAutoComplete();	
 							}
 						}, this)
 					);
@@ -641,7 +634,7 @@ window.JAutoComplete =
 					this.setFirstLiWord("");
 					this.setFocusedKwIds("", "");
 					//on nettoie le input box bg
-					this.setInputBgBoxText(this.inputBox, "");
+					this.setInputBgBoxText("");
 					//on dit que lon a rien
 					var data =
 						'<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-title">' +
@@ -657,7 +650,7 @@ window.JAutoComplete =
 				}
 			}
 			//si on est la alors pas besoin on remove
-			this.resetSingleAutoComplete(this.inputBox);
+			this.resetSingleAutoComplete();
 		};
 
 		//---------------------------------------------------*
@@ -735,8 +728,7 @@ window.JAutoComplete =
 				$.proxy(function(e) {
 					this.fetchAutoCompleteData(
 						e,
-						$(e.target).val(),
-						this.inputBox
+						$(e.target).val()
 					);
 				}, this)
 			);
@@ -751,7 +743,7 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.resetSingleAutoComplete = function(params) {
+		this.resetSingleAutoComplete = function() {
 			//le auto complete
 			$("#" + this.baseDivId)
 				.css({ display: "none" })
@@ -769,35 +761,17 @@ window.JAutoComplete =
 		//---------------------------------------------------*
 		this.resetSearchInputBox = function() {
 			//all inputs
-			this.setInputBgBoxText(this.inputBox, "");
+			this.setInputBgBoxText("");
 			//
 			this.setFocusedKwIds("", "");
 			//
-			this.setInputBoxText(this.inputBox, "", true);
+			this.setInputBoxText("", true);
 			//le auto complete
 			this.resetMainAutoComplete();
 		};
 
 		//---------------------------------------------------*
-		this.resetSingleSearchInputBox = function(params) {
-			//
-			this.setInputBgBoxText(this.inputBox, "");
-			//
-			this.setFocusedKwIds("", "");
-			//
-			this.setInputBoxText(this.inputBox, "", true);
-			//le auto complete
-			this.resetSingleAutoComplete(this.inputBox);
-		};
-
-		//---------------------------------------------------*
-		this.fillInputWithString = function(str, params) {
-			//
-			this.setInputBoxText(this.inputBox, str, true);
-		};
-
-		//---------------------------------------------------*
-		this.sendingWordToOurTeamForValidation = function(params) {
+		this.sendingWordToOurTeamForValidation = function() {
 			var word = this.lastSearchString;
 			var msg = this.jlang.t("no_result_for_word");
 			//si on avait des resultat de hint dans le autocomplete
@@ -826,7 +800,7 @@ window.JAutoComplete =
 				$("#" + this.baseDivId + " .single-hint").click(
 					$.proxy(function(e) {
 						e.preventDefault();
-						this.setInputFromHint($(e.target).attr("keyword-word"), this.inputBox);
+						this.setInputFromHint($(e.target).attr("keyword-word"));
 					}, this)
 				);
 			}
@@ -834,10 +808,10 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.setInputFromHint = function(word, params) {
+		this.setInputFromHint = function(word) {
 			//on va setter le input box comme si on avait fait
 			//une recherche en tapant du texte
-			this.setInputBoxText(this.inputBox, word, true);
+			this.setInputBoxText(word, true);
 			//set le focus sur input
 			this.inputBox.refinput.focus();
 			//on creer un fake event sur le input box
@@ -853,7 +827,7 @@ window.JAutoComplete =
 			//on enleve le autoaocmplgte
 			this.hideAutoComplete();
 			//et on fait comme si on avait tape
-			this.fetchAutoCompleteData(evnt, word, this.inputBox);
+			this.fetchAutoCompleteData(evnt, word);
 		};
 
 		//---------------------------------------------------*
@@ -885,7 +859,7 @@ window.JAutoComplete =
 					var keywordIds = $(e.target).attr("keyword-ids");
 					var keywordWord = $(e.target).attr("keyword-word");
 					//set le input  et nput-bg
-					this.setInputBoxText(this.inputBox, keywordWord, true);
+					this.setInputBoxText(keywordWord, true);
 					//set le focus sur input
 					this.inputBox.refinput.focus();
 					//set les keywords ids focused
@@ -906,7 +880,7 @@ window.JAutoComplete =
 								}.bind(this)
 							);
 						//on eneleve le autocomplete
-						this.resetSingleAutoComplete(this.inputBox);	
+						this.resetSingleAutoComplete();	
 					}
 				}, this)
 			);
