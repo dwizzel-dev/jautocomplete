@@ -37,9 +37,11 @@ window.JAppz =
 						this.createSearchInterface();
 					}.bind(this)
 				)
-				.catch(function(err) {
-					this.error("No lang file, just quiting!");
-				});
+				.catch(
+					function(err) {
+						this.error("No lang file, just quiting!");
+					}.bind(this)
+				);
 			//server
 			if (this.args.isLocaleDb) {
 				//otherwise the jcomm will get it from the server
@@ -51,9 +53,11 @@ window.JAppz =
 					serverFormProcess: this.serverFormProcess
 				}))
 					.init()
-					.catch(function(err) {
-						this.error("No DB File file, just quiting!");
-					});
+					.catch(
+						function(err) {
+							this.error("No DB File file, just quiting!");
+						}.bind(this)
+					);
 			}
 			//comm obj
 			(this.jcomm = new JComm({
