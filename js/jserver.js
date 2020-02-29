@@ -299,7 +299,7 @@ function JServer(){
 		};
 
 	//---------------------------------------------------------------------
-	//load the db lang file
+	//load the db kw
 	this.getDB = function(resolve, reject){
 		//on send
 		$.ajax({

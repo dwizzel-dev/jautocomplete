@@ -643,34 +643,33 @@ function JAutoComplete(){
 					this.bFoundAutoCompleteMatch = true;	
 					}
 				//on ajoute le data
-				$('#' + this.baseDivId).html(data);
-				//on show	
-				$('#' + this.baseDivId).css({'display':'block'});	
+				$('#' + this.baseDivId)
+					.html(data)
+					//on show	
+					.css({'display':'block'});	
 				//on keep du data
-				$('#' + this.baseDivId + ' .single-result > .mclick').data('params', params);
-				//
-				var that = this;
-				//on met un listener pour le click sur les resultats		
-				$('#' + this.baseDivId + ' .single-result > .mclick').click(function(e){
-					e.preventDefault();
-					var keywordIds = $(this).attr('keyword-ids');
-					var keywordWord = $(this).attr('keyword-word');
-					var params = $(this).data('params');
-					that.debug(params.input + ' -> Clicked');
-					//set le input  et nput-bg
-					that.setInputBoxText(params, keywordWord, true);
-					//set le focus sur input
-					params.refinput.focus();
-					//set les keywords ids focused
-					that.setFocusedKwIds(keywordIds, keywordWord);
-					//fetch le listing d'exercice en rapport avec les keyword ids
-					if(that.jsearch.getExerciceListingByKeywordIds(that.getFocusedKwIds(), that.getCurrentWord(params))){
-						//
-						that.setLastSearchString(that.getCurrentWord(params));		
-						}
-					//on eneleve le autocomplete
-					that.resetSingleAutoComplete(params);
-					});
+				$('#' + this.baseDivId + ' .single-result > .mclick')
+					.data('params', params)
+					.click($.proxy(function(e){
+						e.preventDefault();
+						var keywordIds = $(e.target).attr('keyword-ids');
+						var keywordWord = $(e.target).attr('keyword-word');
+						var params = $(e.target).data('params');
+						this.debug(params.input + ' -> Clicked');
+						//set le input  et nput-bg
+						this.setInputBoxText(params, keywordWord, true);
+						//set le focus sur input
+						params.refinput.focus();
+						//set les keywords ids focused
+						this.setFocusedKwIds(keywordIds, keywordWord);
+						//fetch le listing d'exercice en rapport avec les keyword ids
+						if(this.jsearch.getExerciceListingByKeywordIds(this.getFocusedKwIds(), this.getCurrentWord(params))){
+							//
+							this.setLastSearchString(this.getCurrentWord(params));		
+							}
+						//on eneleve le autocomplete
+						this.resetSingleAutoComplete(params);
+					}, this));
 				//on quitte
 				return;
 			}else{
@@ -682,9 +681,10 @@ function JAutoComplete(){
 				//on dit que lon a rien
 				var data = '<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-title">' + this.jlang.t('no_result') + '</LI></UL>';
 				//on ajoute le data
-				$('#' + this.baseDivId).html(data);
-				//on show	
-				$('#' + this.baseDivId).css({'display':'block'});
+				$('#' + this.baseDivId)
+					.html(data)
+					//on show	
+					.css({'display':'block'});
 				//on sen va byebye!
 				return;
 				}
@@ -747,19 +747,15 @@ function JAutoComplete(){
 		if(this.bFocusOnInput){
 			$('#' + inputs.input).focus();	
 			}
-		//appz ref
-		var that = this;	
 		//le ref du onject jqeury selector pour eviter de reparcourrir a chaque fois
 		this.arrInputBox[inputs.input].refresult = $('#' + strContainerInput);	
 		this.arrInputBox[inputs.input].refinput = $('#' + inputs.input);
 		this.arrInputBox[inputs.input].refinputbg = $('#' + inputs.input + '-bg');
 		//all inputs keyup
-		this.arrInputBox[inputs.input].refinput.data('params', this.arrInputBox[inputs.input]);
 		//selon le type serach
-		this.arrInputBox[inputs.input].refinput.keyup(function(e){
-			var oParams = $(this).data('params');
-			that.fetchAutoCompleteData(e, $(this).val(), oParams);
-			});
+		this.arrInputBox[inputs.input].refinput.keyup($.proxy(function(e){
+			this.fetchAutoCompleteData(e, $(e.target).val(), this.arrInputBox[inputs.input]);
+			}, this));
 		};
 
 	//----------------------------------------------------------------------------------------------------------------------*	
@@ -775,16 +771,14 @@ function JAutoComplete(){
 	this.resetMainAutoComplete = function(){
 		//le auto complete
 		for(var o in this.arrInputBox){
-			$('#' + this.baseDivId).css({'display':'none'});
-			$('#' + this.baseDivId).text('');	
+			$('#' + this.baseDivId).css({'display':'none'}).text('');	
 			}
 		};
 
 	//----------------------------------------------------------------------------------------------------------------------*	
 	this.resetSingleAutoComplete = function(params){
 		//le auto complete
-		$('#' + this.baseDivId).css({'display':'none'});
-		$('#' + this.baseDivId).text('');	
+		$('#' + this.baseDivId).css({'display':'none'}).text('');	
 		//
 		this.setFocusedKwIds('', '');
 		};
@@ -851,8 +845,6 @@ function JAutoComplete(){
 				msg += '<LI class="single-hint" keyword-word="' + this.arrLastHintResult[o] + '">' + this.arrLastHintResult[o] + '</LI>';
 				}
 			}
-		//appz ref
-		var that = this;	
 		//on met le conenu du msg dans le LI avaec un tag title
 		var data = '<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-msg">' + msg.replace(/\{\[WORD\]\}/g, '<b>"' + word + '"</b>') + '</LI></UL>'; 
 		//on ajoute le data
@@ -861,13 +853,15 @@ function JAutoComplete(){
 		$('#' + this.baseDivId).css({'display':'block'});
 		//on met l'action sur les single-hints si on en avait evidement
 		if(this.bHaveAutoCompleteResult && this.arrLastHintResult.length > 0){
-			$('#' + this.baseDivId + ' .single-hint').data('params', params);
-			$('#' + this.baseDivId + ' .single-hint').click(function(e){
-				e.preventDefault();
-				var keywordWord = $(this).attr('keyword-word');
-				var params = $(this).data('params');	
-				that.setInputFromHint(keywordWord, params);
-				});			
+			$('#' + this.baseDivId + ' .single-hint')
+				.data('params', params)
+				.click($.proxy(function(e){
+					e.preventDefault();
+					this.setInputFromHint(
+						$(e.target).attr('keyword-word'), 
+						$(e.target).data('params')
+						);
+					}, this));			
 			}
 		//	
 		};	
