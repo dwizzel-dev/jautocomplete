@@ -1,4 +1,4 @@
 "recherche":"type ...",
 "no_result":"aucun resultat!",
-"no_result_for_word":"Sorry! No result for {[WORD]}",
+"no_result_for_word":"Sorry! No result for {{WORD}}",
 "you_can_try_the_hints_bellow":"You can try the hints bellow:"

@@ -303,41 +303,9 @@ window.JAutoComplete =
 
 		//---------------------------------------------------*
 		this.fetchAutoCompleteDataWithDelay = function(str, params) {
-			//la derniere string que l,on a chercher
-			//pour eviter de recommencer la recherche
-			//on va stripper les multiple space en un seul
-			//var le serveur le fait pour les retours
-			//si on trouve des multiples espaces les remplacer
-			/*
-			if(str.match(/\s+/g)){
-				str = str.replace(/[\s]+/g, ' ');	
-				//on change la value dans le input box
-				this.setInputBoxText(params, str, false);		
-				}
-			*/
 			//on va aller chercher les case de kwtype qu'il a coche qui se limit a trois
 			//la string des case coche
 			var strKwType = "";
-			/*
-			var strKwType = '';
-			//lop dans nos 3 choix
-			for(var i=0; i<3; i++){
-				//ref de jquery object	
-				var refCheckBox = $('#' + this.baseKwTypeNameInput + i);
-				if(refCheckBox.is(':checked')){
-					strKwType +=  refCheckBox.val() + ',';
-					}
-				}
-			//minor check
-			if(strKwType != ''){	
-				//on strip la last virgule	
-				strKwType = strKwType.substr(0, (strKwType.length - 1));
-			}else{
-				//value by default is keyword only
-				strKwType = '1';
-				}
-			*/
-
 			//on flag comme quoi on n'a pas de resultat encore du autocomplete
 			this.bHaveAutoCompleteResult = false;
 			//on flag comme quoi on na pas de match encore
@@ -494,7 +462,6 @@ window.JAutoComplete =
 							//vu que lon cherche deja dans les title et keywords
 							//alors on lui lance le msg de submit
 							if (this.bFoundAutoCompleteMatch) {
-								this.debug("RECHERCHE TEXTE: " + this.lastSearchString);
 								this.jsearch
 									.getExerciceListingByWords(this.lastSearchString)
 									.then(
@@ -620,30 +587,7 @@ window.JAutoComplete =
 								);
 							}
 							//Le <LI>
-							data +=
-								'<LI keyword-ids="' +
-								obj[o].id +
-								'" keyword-word="' +
-								obj[o].name +
-								'" keyword-type ="' +
-								kwtype +
-								'" class="single-result" preview-loaded="0" li-pos="' +
-								iCmpt +
-								'" id="lisr' +
-								iCmpt +
-								'"><DIV class="mclick" keyword-ids="' +
-								obj[o].id +
-								'" keyword-word="' +
-								obj[o].name +
-								'" keyword-type ="' +
-								kwtype +
-								'" li-pos="' +
-								iCmpt +
-								'">' +
-								strLiText +
-								"</DIV></LI>"; //0=id, 1=name
-							//increment
-							iCmpt++;
+							data += this.buildLI('single-result', obj[o], strLiText, iCmpt++, kwtype);
 						}
 					}
 					data += "</UL>";
@@ -887,19 +831,15 @@ window.JAutoComplete =
 				//les hints propose avant si clique dessus
 				//va le rajouter dans la case texte et
 				//relancer le fetch autocomplete
+				var iCmpt = 1;
 				for (var o in this.arrLastHintResult) {
-					msg +=
-						'<LI class="single-hint" keyword-word="' +
-						this.arrLastHintResult[o].name +
-						'">' +
-						this.arrLastHintResult[o].name +
-						"</LI>";
+					msg += this.buildLI('single-hint', this.arrLastHintResult[o], this.arrLastHintResult[o].name, iCmpt++, '');
 				}
 			}
 			//on met le conenu du msg dans le LI avaec un tag title
 			var data =
 				'<UL class="listing" focus-id="0" focus-id-max="0"><LI class="single-result-msg">' +
-				msg.replace(/\{\[WORD\]\}/g, '<b>"' + word + '"</b>') +
+				msg.replace('{{WORD}}', '<b>"' + word + '"</b>') +
 				"</LI></UL>";
 			//on ajoute le data
 			$("#" + this.baseDivId).html(data);
@@ -939,6 +879,27 @@ window.JAutoComplete =
 			//et on fait comme si on avait tape
 			this.fetchAutoCompleteData(evnt, word, params);
 		};
+
+		//---------------------------------------------------*
+		this.buildLI = function(clss, obj, text, iCmpt, kwtype) {
+			return '<LI class="' + 
+			clss + 
+			'" keyword-ids="' +
+			obj.id +
+			'" keyword-word="' +
+			obj.name +
+			'" keyword-type ="' +
+			kwtype +
+			'" li-pos="' +
+			iCmpt +
+			'" id="lisr' +
+			iCmpt +
+			'">' +
+			text +
+			"</LI>";
+
+		};
+
 
 		//----------------------------------------------------------
 		//inject code in them for debugging
