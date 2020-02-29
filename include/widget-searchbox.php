@@ -34,7 +34,7 @@ $getQuerySearch = isset($_GET['q']) ? $_GET['q'] : '';
 jQuery(document).ready(function($){
 	//main application 		
 	(window.gAppz = window.gAppz || new JAppz({
-		debug: true,
+		debug: false,
 		sessionId: 0,
 		isLocaleDb:true,
 		localeLang: 'en_US',
