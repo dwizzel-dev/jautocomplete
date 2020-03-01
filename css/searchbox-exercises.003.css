@@ -423,8 +423,15 @@
 		> .kw-content-result
 		ul.listing
 		li.single-result {
-		/* only if we DONT use jautocomplete.reorderRowsToColumns to seperate them in 2 columns */
-		/*width: calc(100% - 10px) !important;*/
+		width: calc(100% - 10px) !important;
+	}
+	.widget-searchbox-exercises
+		.searchbox
+		.kw-searchbox
+		> div
+		> .kw-content-result
+		ul.listing.split-columns
+		li.single-result {
 		width: calc(50% - 10px) !important;
 	}
 }

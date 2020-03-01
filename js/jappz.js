@@ -80,7 +80,8 @@ window.JAppz =
 				jsearch: this.jsearch,
 				uid: this.uid,
 				word: this.args.currentSearchedWord,
-				focusoninput: this.args.focusOnInput
+				focusoninput: this.args.focusOnInput,
+				splitColumns: this.args.splitColumns
 			})).init();
 			//container size
 			this.containerSize = {

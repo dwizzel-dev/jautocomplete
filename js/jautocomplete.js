@@ -26,6 +26,8 @@ window.JAutoComplete =
 			this.jsearch = this.args.jsearch;
 			//unique ID
 			this.uid = this.args.uid;
+			//split in 2 equal columns or not
+			this.splitColumns = this.args.splitColumns;
 			//base div
 			this.baseDivId = "kw-content-result-" + this.uid;
 			//base input name for kwtype
@@ -541,8 +543,9 @@ window.JAutoComplete =
 							rowStack.push(this.buildLI('single-result', group[o], strLiText, iCmpt++, kwtype));
 						}
 					}
+					var cssExtra = this.splitColumns ? ' split-columns' : '';
 					var data = 
-						'<UL class="listing" focus-id="0" focus-id-max="' + iNumRows + '">' + 
+						'<UL class="listing ' + cssExtra + '" focus-id="0" focus-id-max="' + iNumRows + '">' + 
 						this.reorderRowsToColumns(rowStack).join('') + 
 						'</UL>';
 					//si ion ne trouve pas de hint
@@ -595,8 +598,12 @@ window.JAutoComplete =
 		//since css flex columns will go side by side and we want them up and down on 2 equal columns
 		//Ex: for 2 columns with 5 items will give: 1,2,3,4,5 => 1,4,2,5,3
 		this.reorderRowsToColumns = function(arr) {
+			if(!this.splitColumns){
+				//do nothing
+				return arr;
+			}
 			//first divide them in 2 columns
-			var iSplit = (arr.length/2) + 1;
+			var iSplit = (arr.length/2) + (arr.length%2 ? 1 : 0);
 			var left = arr.slice(0, iSplit); //EX: 1,2,3
 			var right = arr.slice(iSplit); //EX: 4,5
 			//build the final one
