@@ -464,38 +464,43 @@ window.JAutoComplete =
 				//sans de titre en plus
 				var iNumRows = 0;
 				//alors on deoit trouver le premier kw unique
-				//car pourrait etre envoye 1,2,3
+				//car pourrait etre envoye 'kw', 'make', 'make-model', 'make-model-year', etc...
+				//pour les regourper par sous-groupe de resultat
 				//mais uniquement 2 pourrait avoir des retours
-				for (var o in obj) {
-					obj = obj[o];
-					break;
-				}
-				iNumRows = Object.keys(obj).length;
-				//si a un resultat
-				if (iNumRows > 0) {
-					this.bHaveAutoCompleteResult = true;
-					//si on doit reset le bg hint, etc...
-					var bResetHint = false;
-					//on garde le premier choix que l,on va proposer dans le input-bg en gris
-					if (typeof obj[0].name == "string") {
-						// si le debut du mot correspond
-						if (obj[0].name.toLowerCase().indexOf(word) === 0) {
-							//le premier LI
-							//si on le garde cest ce qui sera lance
-							this.firstLiWord = obj[0].name;
-							//set le input-bg
-							this.setInputBgBoxText(this.firstLiWord);
-							//on efface les kwids l'usager ne l' pas choisi de lui meme
-							this.setFocusedKwIds("", "");
+				var groupKeys = Object.keys(obj);
+				//essaye avec le premier groupe de resultat, si il y en a plusieurs on va les regrouper ensemble
+				var group = obj[groupKeys[0]];
+				var bFirstLoop = false;
+				iNumRows = Object.keys(group).length;
+				//si on a au moins un resultat
+				if (iNumRows > 0){
+					//seulemnt pour le premier coup
+					if(!bFirstLoop){
+						this.bHaveAutoCompleteResult = true;
+						//si on doit reset le bg hint, etc...
+						var bResetHint = false;
+						//on garde le premier choix que l,on va proposer dans le input-bg en gris
+						if (typeof group[0].name == "string") {
+							// si le debut du mot correspond
+							if (group[0].name.toLowerCase().indexOf(word) === 0) {
+								//le premier LI
+								//si on le garde cest ce qui sera lance
+								this.firstLiWord = group[0].name;
+								//set le input-bg
+								this.setInputBgBoxText(this.firstLiWord);
+								//on efface les kwids l'usager ne l' pas choisi de lui meme
+								this.setFocusedKwIds("", "");
+							} else {
+								bResetHint = true;
+							}
 						} else {
 							bResetHint = true;
 						}
-					} else {
-						bResetHint = true;
-					}
-					var arrWords = cleanword.split(" ");
-					if (typeof arrWords != "object") {
-						arrWords = [];
+						var arrWords = cleanword.split(" ");
+						if (typeof arrWords != "object") {
+							arrWords = [];
+						}
+						bFirstLoop = true;
 					}
 					//get la position du serach box
 					var iCmpt = 1;
@@ -503,16 +508,16 @@ window.JAutoComplete =
 						'<UL class="listing" focus-id="0" focus-id-max="' + iNumRows + '">';
 					var bFoundMatch = false;
 					//loop data
-					for (var o in obj) {
+					for (var o in group) {
 						if (
-							typeof obj[o].name == "string" &&
-							(typeof obj[o].id == "string" || typeof obj[o].id == "number")
+							typeof group[o].name == "string" &&
+							(typeof group[o].id == "string" || typeof group[o].id == "number")
 						) {
 							//on garde des resultat pour des hint dans la
 							//proposition a lusager lors de aucun result
-							this.arrLastHintResult.push(obj[o]);
+							this.arrLastHintResult.push(group[o]);
 							//change to blue hint if word substr is found in the text
-							var strLiText = obj[o].name;
+							var strLiText = group[o].name;
 							var strMatch = "";
 							for (var p in arrWords) {
 								strMatch += "^" + arrWords[p] + "|[ ]{1}" + arrWords[p] + "|";
@@ -529,7 +534,7 @@ window.JAutoComplete =
 								);
 							}
 							//Le <LI>
-							data += this.buildLI('single-result', obj[o], strLiText, iCmpt++, kwtype);
+							data += this.buildLI('single-result', group[o], strLiText, iCmpt++, kwtype);
 						}
 					}
 					data += "</UL>";
@@ -554,6 +559,7 @@ window.JAutoComplete =
 						.css({ display: "block" });
 					//on quitte
 					return;
+
 				} else {
 					//pas de resultat alors on enleve le li et les focused kw ids
 					this.firstLiWord = '';

@@ -173,7 +173,7 @@ window.JServer =
 						cword: word,
 						result: {
 							//les keywords
-							"1": arrResult
+							"kw": arrResult
 						}
 					}
 				};
