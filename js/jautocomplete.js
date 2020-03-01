@@ -441,6 +441,11 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
+		//@NOTES: 
+		//the problem with flex-direction: column
+		//it that you need a fixed height so after X element it will go on the right column
+		//but we dont know the number of item of the total height of 
+		//so we are going to seperate them in two batch during the build of the li
 		this.fetchAutoCompleteDataRFS = function(
 			obj,
 			word,
@@ -474,7 +479,7 @@ window.JAutoComplete =
 				iNumRows = Object.keys(group).length;
 				//si on a au moins un resultat
 				if (iNumRows > 0){
-					//seulemnt pour le premier coup
+					//seulement pour le premier coup
 					if(!bFirstLoop){
 						this.bHaveAutoCompleteResult = true;
 						//si on doit reset le bg hint, etc...
@@ -504,9 +509,8 @@ window.JAutoComplete =
 					}
 					//get la position du serach box
 					var iCmpt = 1;
-					var data =
-						'<UL class="listing" focus-id="0" focus-id-max="' + iNumRows + '">';
 					var bFoundMatch = false;
+					var rowStack = [];
 					//loop data
 					for (var o in group) {
 						if (
@@ -533,11 +537,14 @@ window.JAutoComplete =
 									}
 								);
 							}
-							//Le <LI>
-							data += this.buildLI('single-result', group[o], strLiText, iCmpt++, kwtype);
+							//Le <LI>, stack them all will change the order later
+							rowStack.push(this.buildLI('single-result', group[o], strLiText, iCmpt++, kwtype));
 						}
 					}
-					data += "</UL>";
+					var data = 
+						'<UL class="listing" focus-id="0" focus-id-max="' + iNumRows + '">' + 
+						this.reorderRowsToColumns(rowStack).join('') + 
+						'</UL>';
 					//si ion ne trouve pas de hint
 					if (bResetHint) {
 						//set le input-bg
@@ -582,6 +589,28 @@ window.JAutoComplete =
 			}
 			//si on est la alors pas besoin on remove
 			this.resetSingleAutoComplete();
+		};
+
+		//---------------------------------------------------*
+		//since css flex columns will go side by side and we want them up and down on 2 equal columns
+		//Ex: for 2 columns with 5 items will give: 1,2,3,4,5 => 1,4,2,5,3
+		this.reorderRowsToColumns = function(arr) {
+			//first divide them in 2 columns
+			var iSplit = (arr.length/2) + 1;
+			var left = arr.slice(0, iSplit); //EX: 1,2,3
+			var right = arr.slice(iSplit); //EX: 4,5
+			//build the final one
+			var rtn = [];	
+			//the left will always contains more or equal items compare to right
+			for(var i=0, len = left.length; i < len; i++){
+				rtn.push(left[i]);
+				//minor check if we have one
+				if(typeof right[i] !== 'undefined'){
+					rtn.push(right[i]);
+				}	
+			}
+			//
+			return rtn;
 		};
 
 		//---------------------------------------------------*

@@ -31,20 +31,16 @@ $arrFake = [
         'cword' => $data['word'],
         'result' => [
             "kw" => [
-                ['id' => "0", 'name' => "SUV"],
-                ['id' => "1", 'name' => "Scion"],
-                ['id' => "2", 'name' => "Subaru"],
-                ['id' => "3", 'name' => "Suzuki"],
-                ['id' => "4", 'name' => "Audi S5"],
-                ['id' => "5", 'name' => "Audi SQ5"],
-                ['id' => "6", 'name' => "BMW 1 Series"],
-                ['id' => "7", 'name' => "BMW 2 Series"],
-                ['id' => "8", 'name' => "BMW 3 Series"],
-                ['id' => "9", 'name' => "BMW 4 Series"],
+                ['id' => "0", 'name' => "un"],
+                ['id' => "1", 'name' => "deux"],
+                ['id' => "2", 'name' => "trois"],
+                ['id' => "3", 'name' => "quatre"],
+                ['id' => "4", 'name' => "cinq"],
             ],
             "make" => [
-                ['id' => "0", 'name' => "Acura"],
-                ['id' => "1", 'name' => "Chevrolet"],
+                ['id' => "0", 'name' => "B un"],
+                ['id' => "1", 'name' => "B deux"],
+                ['id' => "1", 'name' => "b Trois"],
             ]      
         ]    
     ]        
