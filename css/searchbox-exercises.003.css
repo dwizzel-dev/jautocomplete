@@ -121,6 +121,25 @@
 	text-transform: capitalize;
 	width: 100%;
 }
+
+.widget-searchbox-exercises
+	.searchbox
+	.kw-searchbox
+	> div
+	> .kw-content-result
+	ul.listing
+	li.single-result-group-title {
+	width: 100%;
+	padding: 10px 10px 5px !important;
+	box-sizing: border-box;
+	border-bottom: 1px solid #eee;
+	margin-bottom: 5px;
+	font-size: 1.1rem;
+	font-weight: bold;
+	color: #ccc;
+}
+
+
 .search-box-squeeze
 	.widget-searchbox-exercises
 	.searchbox

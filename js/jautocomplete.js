@@ -467,87 +467,96 @@ window.JAutoComplete =
 			}
 			//continue or not
 			if (bContinue && this.inputBox.refinput.is(":focus")) {
-				//on va voir si on a plus que un kwtype sinon on affiche normal
-				//sans de titre en plus
-				var iNumRows = 0;
 				//alors on deoit trouver le premier kw unique
 				//car pourrait etre envoye 'kw', 'make', 'make-model', 'make-model-year', etc...
 				//pour les regourper par sous-groupe de resultat
 				//mais uniquement 2 pourrait avoir des retours
-				var groupKeys = Object.keys(obj);
-				//essaye avec le premier groupe de resultat, si il y en a plusieurs on va les regrouper ensemble
-				var group = obj[groupKeys[0]];
-				var bFirstLoop = false;
-				iNumRows = Object.keys(group).length;
+				this.debug('ROWS', obj);
+				//total rows of all categories
+				var iTotalNumRows = 0;
+				for(var o in obj){
+					iTotalNumRows += obj[o].length; 
+				}
+				//var iNumRows = Object.keys(group).length;
 				//si on a au moins un resultat
-				if (iNumRows > 0){
+				if (iTotalNumRows > 0){
+					this.bHaveAutoCompleteResult = true;
+					//si on doit reset le bg hint, etc...
+					var bResetHint = false;
+					//all sub groups
+					var groupKeys = Object.keys(obj);
 					//seulement pour le premier coup
-					if(!bFirstLoop){
-						this.bHaveAutoCompleteResult = true;
-						//si on doit reset le bg hint, etc...
-						var bResetHint = false;
-						//on garde le premier choix que l,on va proposer dans le input-bg en gris
-						if (typeof group[0].name == "string") {
-							// si le debut du mot correspond
-							if (group[0].name.toLowerCase().indexOf(word) === 0) {
-								//le premier LI
-								//si on le garde cest ce qui sera lance
-								this.firstLiWord = group[0].name;
-								//set le input-bg
-								this.setInputBgBoxText(this.firstLiWord);
-								//on efface les kwids l'usager ne l' pas choisi de lui meme
-								this.setFocusedKwIds("", "");
-							} else {
-								bResetHint = true;
-							}
-						} else {
-							bResetHint = true;
-						}
-						var arrWords = cleanword.split(" ");
-						if (typeof arrWords != "object") {
-							arrWords = [];
-						}
-						bFirstLoop = true;
+					//essaye avec le premier groupe de resultat, si il y en a plusieurs on va les regrouper ensemble
+					var group = obj[groupKeys[0]];
+					//on garde le premier choix que l,on va proposer dans le input-bg en gris
+					//check si on reset les hints
+					if (typeof group[0].name !== "string" || group[0].name.toLowerCase().indexOf(word) !== 0) {
+						bResetHint = true;
+					}else{
+						//le premier LI
+						//si on le garde cest ce qui sera lance
+						this.firstLiWord = group[0].name;
+						//set le input-bg
+						this.setInputBgBoxText(this.firstLiWord);
+						//on efface les kwids l'usager ne l' pas choisi de lui meme
+						this.setFocusedKwIds("", "");
+					}
+					//the splitted words
+					var arrWords = cleanword.split(" ");
+					if (typeof arrWords != "object") {
+						arrWords = [];
 					}
 					//get la position du serach box
 					var iCmpt = 1;
 					var bFoundMatch = false;
-					var rowStack = [];
-					//loop data
-					for (var o in group) {
-						if (
-							typeof group[o].name == "string" &&
-							(typeof group[o].id == "string" || typeof group[o].id == "number")
-						) {
-							//on garde des resultat pour des hint dans la
-							//proposition a lusager lors de aucun result
-							this.arrLastHintResult.push(group[o]);
-							//change to blue hint if word substr is found in the text
-							var strLiText = group[o].name;
-							var strMatch = "";
-							for (var p in arrWords) {
-								strMatch += "^" + arrWords[p] + "|[ ]{1}" + arrWords[p] + "|";
-							}
-							//strip last pipe
-							if (strMatch != "") {
-								strMatch = strMatch.substr(0, strMatch.length - 1);
-								strLiText = strLiText.replace(
-									new RegExp(strMatch, "gi"),
-									function(m) {
-										bFoundMatch = true;
-										return '<span class="hint">' + m + "</span>";
-									}
-								);
-							}
-							//Le <LI>, stack them all will change the order later
-							rowStack.push(this.buildLI('single-result', group[o], strLiText, iCmpt++, kwtype));
+					var strLi = '';
+					//					
+					for(var grp in groupKeys){
+						//rows for the group
+						var rowStack = [];
+						//the working group
+						group = obj[groupKeys[grp]];
+						//le groupe title row if we have only multiple groups
+						if(groupKeys.length > 1){
+							strLi += '<LI class="single-result-group-title">' + this.jlang.t(groupKeys[grp]) + '</LI>';	
 						}
-					}
+						//loop data
+						for (var o in group) {
+							if (
+								typeof group[o].name == "string" &&
+								(typeof group[o].id == "string" || typeof group[o].id == "number")
+							) {
+								//on garde des resultat pour des hint dans la
+								//proposition a lusager lors de aucun result
+								this.arrLastHintResult.push(group[o]);
+								//change to blue hint if word substr is found in the text
+								var strLiText = group[o].name;
+								var strMatch = "";
+								for (var p in arrWords) {
+									strMatch += "^" + arrWords[p] + "|[ ]{1}" + arrWords[p] + "|";
+								}
+								//strip last pipe
+								if (strMatch != "") {
+									strMatch = strMatch.substr(0, strMatch.length - 1);
+									strLiText = strLiText.replace(
+										new RegExp(strMatch, "gi"),
+										function(m) {
+											bFoundMatch = true;
+											return '<span class="hint">' + m + "</span>";
+										}
+									);
+								}
+								//Le <LI>, stack them all will change the order later
+								rowStack.push(this.buildLI('single-result', group[o], strLiText, iCmpt++, kwtype));
+							}
+						}
+						//li string for the group
+						strLi += this.reorderRowsToColumns(rowStack).join('');
+					}		
+					//multiple columns side by side or left to right	
 					var cssExtra = this.splitColumns ? ' split-columns' : '';
 					var data = 
-						'<UL class="listing ' + cssExtra + '" focus-id="0" focus-id-max="' + iNumRows + '">' + 
-						this.reorderRowsToColumns(rowStack).join('') + 
-						'</UL>';
+						'<UL class="listing ' + cssExtra + '" focus-id="0" focus-id-max="' + iTotalNumRows + '">' + strLi + '</UL>';
 					//si ion ne trouve pas de hint
 					if (bResetHint) {
 						//set le input-bg

@@ -30,6 +30,11 @@ $arrFake = [
     'data' => [
         'cword' => $data['word'],
         'result' => [
+            "make" => [
+                ['id' => "0", 'name' => "B un"],
+                ['id' => "1", 'name' => "B deux"],
+                ['id' => "1", 'name' => "b Trois"],
+            ],
             "kw" => [
                 ['id' => "0", 'name' => "un"],
                 ['id' => "1", 'name' => "deux"],
@@ -37,11 +42,6 @@ $arrFake = [
                 ['id' => "3", 'name' => "quatre"],
                 ['id' => "4", 'name' => "cinq"],
             ],
-            "make" => [
-                ['id' => "0", 'name' => "B un"],
-                ['id' => "1", 'name' => "B deux"],
-                ['id' => "1", 'name' => "b Trois"],
-            ]      
         ]    
     ]        
 ];

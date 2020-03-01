@@ -3,4 +3,6 @@
 "no_result_for_word":"Sorry! No result for {{WORD}}",
 "you_can_try_the_hints_bellow":"You can try the hints bellow:",
 "server_error_on_service_call":"Sorry! The service is not responding.",
-"service_error":"Service error:"
+"service_error":"Service error:",
+"kw":"Keywords",
+"make":"Makes"

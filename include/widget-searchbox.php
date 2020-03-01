@@ -35,7 +35,7 @@ jQuery(document).ready(function($){
 	(window.gAppz = window.gAppz || new JAppz({
 		debug: true,
 		sessionId: 0,
-		isLocaleDb:false,
+		isLocaleDb: false,
 		localeLang: 'en_US',
 		splitColumns: true,
 		serverService: '<?php echo PATH_SERVICE; ?>',	
