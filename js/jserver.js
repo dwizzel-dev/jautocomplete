@@ -32,21 +32,22 @@ window.JServer =
 			this.dbs = {
 				kw:{
 					max: 6,
-					name: 'kw',
-					db: false,
-					url: this.path + "db-kw." + this.lang + ".data"
+					name: 'kw'
 				}, 
 				make: {
 					max: 20,
-					name: 'make',
-					db: false,
-					url: this.path + "db-make." + this.lang + ".data"
+					name: 'make'
 				}
 			};
+			//promises		
+			var proms = [];
+			for(var o in this.dbs){
+				this.dbs[o].db = false;
+				this.dbs[o].url = this.path + "db-" + this.dbs[o].name + "." + this.lang + ".data";
+				proms.push(new Promise(this.getDB.bind(this, this.dbs[o])));
+			}
 			//on va chercher la database
-			return (new Promise(this.getDB.bind(this, this.dbs.kw))).then(function(res){
-				return new Promise(this.getDB.bind(this, this.dbs.make));
-			}.bind(this));
+			return Promise.all(proms);
 		};
 
 		//---------------------------------------------------------------------
