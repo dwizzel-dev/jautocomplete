@@ -53,6 +53,11 @@ window.JAppz =
 					serverFormProcess: this.serverFormProcess
 				}))
 					.init()
+					.then(
+						function(res) {
+							this.debug('JSERVER READY');
+						}.bind(this)
+					)
 					.catch(
 						function(err) {
 							this.error("No DB File file, just quiting!");

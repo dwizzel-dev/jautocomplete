@@ -25,31 +25,46 @@ window.JServer =
 		this.init = function() {
 			//
 			this.jlang = this.args.jlang;
-			this.db = false;
 			this.lang = this.args.lang;
 			this.path = this.args.path;
-			this.urlDB = this.path + "db-kw." + this.lang + ".data";
-			this.maxRows = 20;
+			this.maxRows = 12;
 			this.serverFormProcess = this.args.serverFormProcess;
+			//all dbs
+			this.dbs = {
+				kw:{
+					name: 'kw',
+					db: false,
+					url: this.path + "db-kw." + this.lang + ".data"
+				}, 
+				make: {
+					name: 'make',
+					db: false,
+					url: this.path + "db-kw." + this.lang + ".data"
+				}
+			};
 			//on va chercher la database
-			return new Promise(this.getDB.bind(this));
+			return (new Promise(this.getDB.bind(this, this.dbs.kw))).then(function(res){
+				return new Promise(this.getDB.bind(this, this.dbs.make));
+			}.bind(this));
 		};
 
 		//---------------------------------------------------------------------
 		this.process = function(obj, resolve, reject) {
-			//on check si on a une DB
-			if (this.db === false) {
-				//get out
-				resolve({ msgerrors: 'Local DB "' + this.urlDB + '" not available' });
-				return;
-			}
+			//on check all db state
+			for(var o in this.dbs){
+				if (this.dbs[o] === false) {
+					//get out
+					resolve({ msgerrors: 'Local DB "' + this.dbs[o].url + '" not available' });
+					return;
+				}
+			}	
 			switch (obj.section) {
 				case "search":
 					resolve(this.processSearch(obj));
 					break;
 				default:
 					//default error
-					resolve({ msgerrors: 'Local DB "' + this.urlDB + '" not available' });
+					resolve({ msgerrors: 'No Process for section ' + obj.section});
 					break;
 			}
 			//
@@ -60,7 +75,21 @@ window.JServer =
 			//
 			switch (obj.service) {
 				case "fetch-autocomplete":
-					return this.fetchAutocomplete(obj);
+					//sinon on conitnue
+					var word = (typeof obj.data.word == 'string') ? this.trimKeyword(obj.data.word) : '';
+					return {
+						section: obj.section,
+						service: obj.service,
+						data: {
+							cword: word,
+							result: {
+								//les keywords
+								"kw": this.fetchAutocomplete(obj, word, this.dbs.kw.db),
+								//les makes
+								"make": this.fetchAutocomplete(obj, word, this.dbs.make.db)
+							}
+						}
+					};
 				case "get-exercice-listing-by-keyword-ids":
 					return this.gotoSearchPage(obj);
 				case "get-exercice-listing-by-words":
@@ -100,88 +129,67 @@ window.JServer =
 		};
 
 		//---------------------------------------------------------------------
-		this.fetchAutocomplete = function(obj) {
+		this.fetchAutocomplete = function(obj, word, db) {
 			var arrResult = [];
 			var arrWord = [];
 			var arrSplitWords = [];
-			var word = "";
 			var key = btoa(obj.data.word);
-			var oRtn;
+			
+			//check if empty	
+			if (word == "") {
+				return arrResult;
+			}
 
 			//check in the cahce before
 			if (typeof this.cacheData[key] !== "undefined") {
-				oRtn = this.cacheData[key];
-				this.debug("using cache[" + key + "]", oRtn);
-			} else {
-				if (typeof obj.data.word == "string" && obj.data.word != "") {
-					//check in the cahce before
-					if (typeof this.cacheData[key] !== "undefined") {
-						oRtn = this.cacheData[key];
-						this.debug("using cache[" + key + "]", oRtn);
-					} else {
-						//on strip tout les caractere qui ppeuvent crasher le regex
-						word = this.trimKeyword(obj.data.word);
-						if (word != "") {
-							//on garde juste les 4 premier mots
-							arrSplitWords = word.split(" ").slice(0, 4);
-							if (arrSplitWords.length) {
-								//first try
-								for (var o in arrSplitWords) {
-									arrWord = this.db.match(
-										new RegExp(this.regexWordPermutation(arrSplitWords), "gi")
-									);
-									if (typeof arrWord == "object" && arrWord) {
-										break;
-									} else if (arrSplitWords.length > 1) {
-										//multiple try
-										arrSplitWords = arrSplitWords.slice(
-											0,
-											arrSplitWords.length - 1
-										);
-									}
-								}
-								if (!arrWord) {
-									//extra try
-									if (arrSplitWords[0].length > 1) {
-										arrWord = this.db.match(
-											new RegExp(
-												this.regexWordsWithSpace(arrSplitWords[0]),
-												"gi"
-											)
-										);
-									}
-								}
-								if (typeof arrWord == "object" && arrWord) {
-									this.debug("arrWord", arrWord);
-									arrWord = arrWord.slice(0, this.maxRows);
-									for (var o in arrWord) {
-										arrResult.push({
-											id: o,
-											name: arrWord[o].substring(1)
-										});
-									}
-								}
-							}
-						}
+				return this.cacheData[key];
+			} 
+
+			//on garde juste les 4 premier mots
+			arrSplitWords = word.split(" ").slice(0, 4);
+			if (arrSplitWords.length) {
+				//first try
+				for (var o in arrSplitWords) {
+					arrWord = db.match(
+						new RegExp(this.regexWordPermutation(arrSplitWords), "gi")
+					);
+					if (typeof arrWord == "object" && arrWord) {
+						break;
+					} else if (arrSplitWords.length > 1) {
+						//multiple try
+						arrSplitWords = arrSplitWords.slice(
+							0,
+							arrSplitWords.length - 1
+						);
 					}
 				}
-				//sinon on conitnue
-				oRtn = {
-					section: obj.section,
-					service: obj.service,
-					data: {
-						cword: word,
-						result: {
-							//les keywords
-							"kw": arrResult
-						}
+				if (!arrWord) {
+					//extra try
+					if (arrSplitWords[0].length > 1) {
+						arrWord = db.match(
+							new RegExp(
+								this.regexWordsWithSpace(arrSplitWords[0]),
+								"gi"
+							)
+						);
 					}
-				};
-				//cache it
-				this.cacheData[key] = oRtn;
+				}
+				if (typeof arrWord == "object" && arrWord) {
+					this.debug("arrWord", arrWord);
+					arrWord = arrWord.slice(0, this.maxRows);
+					for (var o in arrWord) {
+						arrResult.push({
+							id: o,
+							name: arrWord[o].substring(1)
+						});
+					}
+				}
 			}
 
-			return oRtn;
+			//cache it
+			this.cacheData[key] = arrResult;	
+
+			return arrResult;
 		};
 
 		//---------------------------------------------------------------------
@@ -199,19 +207,6 @@ window.JServer =
 		};
 
 		//---------------------------------------------------------------------
-		/*
-		example: "mon gros"
-		
-		|gros mon|mon gros|mon gros sale|massage|sale mon gros|ma grosse sale|ma grosse mondaine|
-		
-		\|[a-z0-9\s]{0,}[\s]{1,}mon[a-z0-9]{0,}[\s]{1,}gros[a-z0-9\s]{0,}|
-		\|mon[a-z0-9]{0,}[\s]{1,}gros[a-z0-9\s]{0,}|\|
-		
-		[a-z0-9\s]{0,}[\s]{1,}gros[a-z0-9]{0,}[\s]{1,}mon[a-z0-9\s]{0,}|\|
-		gros[a-z0-9]{0,}[\s]{1,}mon[a-z0-9\s]{0,}
-		
-		*/
-
 		this.regexWordPermutation = function(arr) {
 			//
 			var arrRes = this.permutateArr(arr);
@@ -316,14 +311,14 @@ window.JServer =
 		};
 
 		//---------------------------------------------------------------------
-		this.setDB = function(obj) {
+		this.setDB = function(name, obj) {
 			//
-			this.db = obj;
+			this.dbs[name].db = obj;
 		};
 
 		//---------------------------------------------------------------------
 		//load the db kw
-		this.getDB = function(resolve, reject) {
+		this.getDB = function(oDb, resolve, reject) {
 			//on send
 			$.ajax({
 				timestamp: Date.now(),
@@ -333,7 +328,7 @@ window.JServer =
 				cache: false,
 				async: true,
 				dataType: "text",
-				url: this.urlDB,
+				url: oDb.url,
 				success: function(dataRtn) {
 					//parse data
 					this.parentclass.debug("process().success()", {
@@ -350,7 +345,7 @@ window.JServer =
 					}
 					//
 					this.parentclass.debug(this.url + " loaded");
-					this.parentclass.setDB(obj);
+					this.parentclass.setDB(oDb.name, obj);
 					resolve();
 				},
 				error: function(dataRtn, ajaxOptions, thrownError) {
