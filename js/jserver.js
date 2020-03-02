@@ -27,19 +27,20 @@ window.JServer =
 			this.jlang = this.args.jlang;
 			this.lang = this.args.lang;
 			this.path = this.args.path;
-			this.maxRows = 12;
 			this.serverFormProcess = this.args.serverFormProcess;
 			//all dbs
 			this.dbs = {
 				kw:{
+					max: 6,
 					name: 'kw',
 					db: false,
 					url: this.path + "db-kw." + this.lang + ".data"
 				}, 
 				make: {
+					max: 20,
 					name: 'make',
 					db: false,
-					url: this.path + "db-kw." + this.lang + ".data"
+					url: this.path + "db-make." + this.lang + ".data"
 				}
 			};
 			//on va chercher la database
@@ -84,9 +85,9 @@ window.JServer =
 							cword: word,
 							result: {
 								//les keywords
-								"kw": this.fetchAutocomplete(obj, word, this.dbs.kw.db),
+								"kw": this.fetchAutocomplete(word, this.dbs.kw),
 								//les makes
-								"make": this.fetchAutocomplete(obj, word, this.dbs.make.db)
+								"make": this.fetchAutocomplete(word, this.dbs.make)
 							}
 						}
 					};
@@ -129,11 +130,12 @@ window.JServer =
 		};
 
 		//---------------------------------------------------------------------
-		this.fetchAutocomplete = function(obj, word, db) {
+		this.fetchAutocomplete = function(word, oDb) {
+
 			var arrResult = [];
 			var arrWord = [];
 			var arrSplitWords = [];
-			var key = btoa(obj.data.word);
+			var key = btoa(oDb.name + word);
 			
 			//check if empty	
 			if (word == "") {
@@ -150,7 +152,7 @@ window.JServer =
 			if (arrSplitWords.length) {
 				//first try
 				for (var o in arrSplitWords) {
-					arrWord = db.match(
+					arrWord = oDb.db.match(
 						new RegExp(this.regexWordPermutation(arrSplitWords), "gi")
 					);
 					if (typeof arrWord == "object" && arrWord) {
@@ -166,7 +168,7 @@ window.JServer =
 				if (!arrWord) {
 					//extra try
 					if (arrSplitWords[0].length > 1) {
-						arrWord = db.match(
+						arrWord = oDb.db.match(
 							new RegExp(
 								this.regexWordsWithSpace(arrSplitWords[0]),
 								"gi"
@@ -176,7 +178,7 @@ window.JServer =
 				}
 				if (typeof arrWord == "object" && arrWord) {
 					this.debug("arrWord", arrWord);
-					arrWord = arrWord.slice(0, this.maxRows);
+					arrWord = arrWord.slice(0,  oDb.max);
 					for (var o in arrWord) {
 						arrResult.push({
 							id: o,

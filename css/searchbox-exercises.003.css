@@ -192,7 +192,7 @@
 	padding: 5px 10px;
 	background: #616161;
 	border-radius: 5px;
-	font-size: 100%;
+	font-size: 1.1rem;
 	cursor: pointer;
 	color: #eee;
 	margin: 5px;
@@ -206,6 +206,7 @@
 	> .kw-content-result
 	ul.listing
 	li.single-result-title {
+	/*	
 	padding: 5px 10px;
 	background: #616161;
 	border-radius: 5px;
@@ -216,6 +217,16 @@
 	width: calc(100% - 10px);
 	font-weight: normal;
 	text-transform: capitalize;
+	*/	
+	width: 100%;
+	margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 1.1rem;
+    font-weight: bold;
+	color: #ccc;
+	background: none;
+
 }
 .widget-searchbox-exercises
 	.searchbox
@@ -386,7 +397,7 @@
 		li.single-result {
 		width: calc(50% - 10px);
 	}
-
+	/*
 	.widget-searchbox-exercises
 		.searchbox
 		.kw-searchbox
@@ -396,6 +407,7 @@
 		li.single-result-msg {
 		font-size: 100%;
 	}
+	*/
 }
 
 @media (min-width: 1024px) and (max-width: 1279px) {
