@@ -67,7 +67,7 @@ window.JAutoComplete =
 			//les event poru lesquelles on ne fera rien genre : <SHIFT + LEFT_ARROW> etc...
 			//http://docstore.mik.ua/orelly/webprog/DHTML_javascript/0596004672_jvdhtmlckbk-app-b.html
 			this.arrRefusedEvent = [
-				9,
+				//9, //tab key
 				16,
 				17,
 				18,
@@ -304,9 +304,29 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
+		//copy the lace holder at the input place and add a space too
+		this.copyPlaceHolderToInput = function(){
+			//the placeholder value
+			var s = this.inputBox.refinputbg.attr("placeholder") + ' ';
+			if(s !== ''){
+				this.setInputFromWord(s);	
+			}
+			//we wait a bit and give the focus back
+			setTimeout(function(){
+				this.inputBox.refinput.focus();
+			}.bind(this), 1000);
+
+		};
+
+		//---------------------------------------------------*
 		this.fetchAutoCompleteData = function(evnt, str) {
 			//on arrete le timer si il y en avait un car la requete est nouvelle et l,autre n'est plus valide
 			clearTimeout(this.timerFetchAutoComplete);
+			//on catch le tab key tout de suite, qui est envoye au keydown
+			if((evnt.which) == 9) {
+				this.copyPlaceHolderToInput(evnt, str); 
+				return;
+			}
 			//les event poru lesquelle on ne fera rien genre : <SHIFT + LEFT_ARROW> etc...
 			if (this.arrRefusedEvent.indexOf(evnt.which) !== -1) {
 				//on sort
@@ -466,7 +486,9 @@ window.JAutoComplete =
 				}
 			}
 			//continue or not
-			if (bContinue && this.inputBox.refinput.is(":focus")) {
+			//this is a good condition, but if we use the tab key it wont have the focus anymore
+			//if (bContinue && this.inputBox.refinput.is(":focus")) {
+			if (bContinue) {	
 				//alors on deoit trouver le premier kw unique
 				//car pourrait etre envoye 'kw', 'make', 'make-model', 'make-model-year', etc...
 				//pour les regourper par sous-groupe de resultat
@@ -603,7 +625,14 @@ window.JAutoComplete =
 				}
 			}
 			//si on est la alors pas besoin on remove
-			this.resetSingleAutoComplete();
+
+
+			//@TODO: Big check on that exit
+			//@DWIZZEL: je sais plus trop la
+			//this.resetSingleAutoComplete();
+
+
+
 		};
 
 		//---------------------------------------------------*
@@ -694,6 +723,19 @@ window.JAutoComplete =
 					);
 				}, this)
 			);
+			//key down
+			//the tab key is used by the browser appz, but we can use the keydown for this one
+			this.inputBox.refinput.keydown(
+				$.proxy(function(e) {
+					if(e.which == 9){ //we only need the tab key for that the rest in on keyup
+						this.fetchAutoCompleteData(
+							e,
+							$(e.target).val()
+						);	
+					}
+				}, this)
+			);
+			
 		};
 
 		//---------------------------------------------------*
@@ -762,7 +804,7 @@ window.JAutoComplete =
 				$("#" + this.baseDivId + " .single-hint").click(
 					$.proxy(function(e) {
 						e.preventDefault();
-						this.setInputFromHint($(e.target).attr("keyword-word"));
+						this.setInputFromWord($(e.target).attr("keyword-word"));
 					}, this)
 				);
 			}
@@ -770,7 +812,7 @@ window.JAutoComplete =
 		};
 
 		//---------------------------------------------------*
-		this.setInputFromHint = function(word) {
+		this.setInputFromWord = function(word) {
 			//on va setter le input box comme si on avait fait
 			//une recherche en tapant du texte
 			this.setInputBoxText(word, true);
@@ -778,7 +820,7 @@ window.JAutoComplete =
 			this.inputBox.refinput.focus();
 			//on creer un fake event sur le input box
 			var evnt = $.Event("keyup", {
-				which: 0, //un rien
+				//which: 13, //un rien
 				/*
 				keyCode: 13,
 				which: 13, //un rien
