@@ -29,8 +29,8 @@ require_once(SITE_DEFINE_EDITABLE);
 // ABSOLUTE PATH
 define('DIR', 'C:/dwizzel-local-server/code/www/github.com/dwizzel-dev/jautocomplete/');
 
-define('DIR_TEMPLATE', DIR);
-define('DIR_INCLUDE', DIR_TEMPLATE.'include/');
+define('DIR_CLASS', DIR.'Classes/');
+define('DIR_INCLUDE', DIR.'include/');
 define('DIR_CACHE', DIR.'temp/cache/');
 
 //LES FICHIER CACHE POUR SEARCH EN JS ET PHP
@@ -56,10 +56,14 @@ define('PATH_JS', PATH_WEB.'js/');
 define('PATH_CACHE_JS', PATH_WEB.'temp/cache/js/');
 define('PATH_IMAGE', PATH_WEB.'images/');
 
-
-
 //OTHER
 define('ERROR_LEVEL', E_ALL);
+
+
+//THE AUTOLOADER
+spl_autoload_register(function($className) {
+	include_once $_SERVER['DOCUMENT_ROOT'].'/' .$className . '.php';
+});
 
 
 

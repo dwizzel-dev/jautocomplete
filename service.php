@@ -7,6 +7,9 @@
 
 */
 
+use Classes\Libs\CSearch;
+
+
 header('Content-Type: text/html; charset=utf-8');
 
 // ERROR REPORTING
@@ -22,6 +25,11 @@ $section = $_GET['section'] ?? '';
 $service = $_GET['service'] ?? '';
 $data = json_decode($_GET['data'] ?? '', true);
 $kwType = $data['kwtype'] ?? '';
+
+//we need them all
+if(empty($section) || empty($service) || empty($data)){
+    exit('NOT GOOD');
+}
 
 //fake return for testing
 $arrFake = [
