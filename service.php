@@ -18,10 +18,10 @@ require_once('define.php');
 // ERROR REPORTING
 error_reporting(ERROR_LEVEL);
 
-$section = $_GET['section'];
-$service = $_GET['service'];
-$data = json_decode($_GET['data'], true);
-$kwType = $data['kwtype'];
+$section = $_GET['section'] ?? '';
+$service = $_GET['service'] ?? '';
+$data = json_decode($_GET['data'] ?? '', true);
+$kwType = $data['kwtype'] ?? '';
 
 //fake return for testing
 $arrFake = [
