@@ -7,17 +7,18 @@
 
 */
 
-$tmpStrWidgetNameUID = 'widget-searchbox-exercises-'.rand();
+use Classes\Libs\CReq;
 
-$getQuerySearch = isset($_GET['q']) ? $_GET['q'] : '';
+$widgetUID = 'widget-searchbox-exercises-'.rand();
 
+$searchWord = CReq::get('q', '');
 
 ?>
 <!-- loaded css -->
 <link rel="stylesheet" href="<?php echo PATH_CSS.'searchbox-exercises.'.DEFAULT_VERSIONING.'.css'; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo PATH_CSS.'global.'.DEFAULT_VERSIONING.'.css'; ?>" type="text/css">
 <!-- search box layer -->
-<div class="widget-searchbox-exercises noprint <?php echo $tmpStrWidgetNameUID; ?>"></div>
+<div class="widget-searchbox-exercises noprint <?php echo $widgetUID; ?>"></div>
 <!-- loaded script -->
 <script src="<?php echo PATH_JS; ?>/ahook.js" type="text/javascript"></script>
 <script src="<?php echo PATH_JS; ?>/adebug.js" type="text/javascript"></script>
@@ -35,7 +36,7 @@ jQuery(document).ready(function($){
 	(window.gAppz = window.gAppz || new JAppz({
 		debug: true,
 		sessionId: 0,
-		isLocaleDb: true,
+		isLocaleDb: false,
 		localeLang: 'en_US',
 		splitColumns: true,
 		serverService: '<?php echo PATH_SERVICE; ?>',	
@@ -43,9 +44,9 @@ jQuery(document).ready(function($){
 		serverCashPath: '<?php echo PATH_CACHE_JS; ?>',
 		serverImagePath: '<?php echo PATH_IMAGE; ?>',
 		mainContainer: '.frontpage-block',
-		currentSearchedWord: '<?php echo $getQuerySearch; ?>',
+		currentSearchedWord: '<?php echo $searchWord; ?>',
 		focusOnInput: true,	
-		searchContainer: '.<?php echo $tmpStrWidgetNameUID; ?>',
+		searchContainer: '.<?php echo $widgetUID; ?>',
 	})).init();
 });	
 </script>

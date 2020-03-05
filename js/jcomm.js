@@ -87,11 +87,11 @@ window.JComm =
 				url: strUrl,
 				service: service,
 				section: section,
-				data: {
+				data: {data: btoa(JSON.stringify({
 					section: section,
 					service: service,
-					data: JSON.stringify(data)
-				},
+					data: data
+				}))},
 				success: function(dataRtn) {
 					//try catch on it because of php errors , notice, warnings or scrumbled data
 					var error = "";

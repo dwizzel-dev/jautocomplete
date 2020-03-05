@@ -33,10 +33,6 @@ define('DIR_CLASS', DIR.'Classes/');
 define('DIR_INCLUDE', DIR.'include/');
 define('DIR_CACHE', DIR.'temp/cache/');
 
-//LES FICHIER CACHE POUR SEARCH EN JS ET PHP
-define('DIR_RENDER_KW_PHP', DIR_CACHE.'js/db-kw.en_US.data');
-define('DIR_RENDER_MAKE_PHP', DIR_CACHE.'js/db-make.en_US.data');
-
 // RELATIVE PATH
 define('PATH_WEB', '/');/*the base web site path*/
 
@@ -64,8 +60,6 @@ define('ERROR_LEVEL', E_ALL);
 spl_autoload_register(function($className) {
 	include_once $_SERVER['DOCUMENT_ROOT'].'/' .$className . '.php';
 });
-
-
 
 
 //EOF
