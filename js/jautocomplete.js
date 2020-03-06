@@ -60,7 +60,7 @@ window.JAutoComplete =
 			//min-max
 			this.minStrLen = 1;
 			//le temps entre chaque call du fetchAutoCompleteDataWithDelay en millisecond google est a 130ms
-			this.timeDelay = 0;
+			this.timeDelay = 133;
 			//le timer du setTimeout poura ller fetcher le autocomplete data
 			this.timerFetchAutoComplete = 0;
 			//event.which we refused
@@ -333,49 +333,48 @@ window.JAutoComplete =
 				return;
 			}
 			//si c'est le <esc> on ferme le autocomplete
-			if (evnt.which == "27") {
+			if (evnt.which == 27) {
 				this.hideAutoComplete();
 				return;
 			}
-			//si le premier chars est un space alors on recule le input de 1
-			if (str.charAt(0) === " ") {
-				//on recule et no change le input box
-				this.setInputBoxText(this.trimStringBeginning(str), false);
-				//on place le cursor au debut
-				this.setCarretRange(0, 0);
-				//on sort pas vraiment besoin car doit faire la recherche avec ce qui reste
-				//return;
-			}
-			//on trim les avant et apres spaces
-			str = str.trim();
 			//si c'est un <SPACE> avant une lettre alors ne sera pas bon car le input-bg va etre deplace
 			//alors on remet le cursor au debut et on efface le input et input-bg
-			if (evnt.which == "32") {
-				//check si vide alors on retourne au debut de la string
-				if (str == "") {
-					this.setInputBoxText("", true);
-					return;
+			if (evnt.which == 32) {
+				if(str.lastIndexOf(' ') !== -1){
+					this.setInputBoxText(str.replace(/\s+/gi, ' '), true);
 				}
+				if(str.indexOf(' ') === 0){
+					this.setInputBoxText(str.replace(/\s+/gi, ' ').slice(1), true);
+				}
+				//this.setCarretRange(0, 0);
+				return;
 			}
 
+			//on reset le -bg
+			//@DWIZZEL
+			//str = str.replace(/\s+/gi, ' ');
+			//on trim les avant et apres spaces
+			//str = str.slice(str.indexOf(' ') === 0 ? 1 : 0);
+			//str = str.trim();
+
+			this.setInputBgBoxText(str);
+			
+			
 			//les autres chars
-			if (evnt.which != "13") {
+			if (evnt.which != 13) {
 				//dans le cas un c'est un debut avec char mais pas autre char apres ex: "ab " et que l,on a deja chercher pour "ab" alors on annule le search ou si c,est la meme recherche avec un backspace sur des espace <space>
 				if (
 					str == this.lastSearchString &&
-					evnt.which != "38" &&
-					evnt.which != "40"
+					evnt.which != 38 &&
+					evnt.which != 40
 				) {
 					return;
 				}
-				//on reset le -bg
-				//@DWIZZEL
-				this.setInputBgBoxText("");
 				//on check pour les <ARROW> et autres touche
-				if (evnt.which == "38") {
+				if (evnt.which == 38) {
 					//GO UP
 					this.changeLiFocus("up");
-				} else if (evnt.which == "40") {
+				} else if (evnt.which == 40) {
 					//GO DOWN
 					this.changeLiFocus("down");
 				} else {
@@ -717,10 +716,7 @@ window.JAutoComplete =
 			//selon le type serach
 			this.inputBox.refinput.keyup(
 				$.proxy(function(e) {
-					this.fetchAutoCompleteData(
-						e,
-						$(e.target).val()
-					);
+					this.fetchAutoCompleteData(e, $(e.target).val());
 				}, this)
 			);
 			//key down
@@ -728,10 +724,7 @@ window.JAutoComplete =
 			this.inputBox.refinput.keydown(
 				$.proxy(function(e) {
 					if(e.which == 9){ //we only need the tab key for that the rest in on keyup
-						this.fetchAutoCompleteData(
-							e,
-							$(e.target).val()
-						);	
+						this.fetchAutoCompleteData(e, $(e.target).val());	
 					}
 				}, this)
 			);
