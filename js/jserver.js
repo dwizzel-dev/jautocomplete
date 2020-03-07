@@ -152,6 +152,8 @@ window.JServer =
 			arrSplitWords = word.split(" ").slice(0, 4);
 			if (arrSplitWords.length) {
 				//first try
+				arrWord = this.findAndIntersect(oDb, arrSplitWords);
+				/*
 				for (var o in arrSplitWords) {
 					arrWord = oDb.db.match(
 						new RegExp(this.regexWordPermutation(arrSplitWords), "gi")
@@ -159,13 +161,14 @@ window.JServer =
 					if (typeof arrWord == "object" && arrWord) {
 						break;
 					} else if (arrSplitWords.length > 1) {
-						//multiple try
+						//multiple try with less words
 						arrSplitWords = arrSplitWords.slice(
 							0,
 							arrSplitWords.length - 1
 						);
 					}
 				}
+				*/
 				if (!arrWord) {
 					//extra try
 					if (arrSplitWords[0].length > 1) {
@@ -192,6 +195,30 @@ window.JServer =
 			//cache it
 			this.cacheData[key] = arrResult;	
 
+			return arrResult;
+		};
+
+		//---------------------------------------------------------------------
+		this.findAndIntersect = function(oDb, arr){
+			var reg, arrResult = [];
+			for(var o in arr){
+				reg = "\\|+((?:[\\d\\s\\w\\-&\\.]*\\s|)" + arr[o] + "[\\d\\s\\w\\-&\.]*)";
+				if((arrWord = oDb.db.match(new RegExp(reg, "gi"))) === null){
+					return false;		
+				}
+				//we can continue and intersect
+				if(arrResult.length){
+					arrResult = arrResult.filter(function(item) {
+						return arrWord.indexOf(item) !== -1;
+					});
+					if(!arrResult.length){
+						return false;
+					}
+				}else{
+					//the first regex loop
+					arrResult = arrWord;
+				}
+			}
 			return arrResult;
 		};
 

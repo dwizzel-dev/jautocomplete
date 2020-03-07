@@ -58,18 +58,19 @@ class CSearch{
         $splitWord = explode(' ', trim(str_replace('/\s+/', ' ', $this->word)));
         foreach($splitWord as $word){
             $regex = '/\|+((?:[\d\s\w\-&\.]*\s|)'.$word.'[\d\s\w\-&\.]*)/i';
-            if(preg_match_all($regex, $content, $match) !== false){
-                $matches[] = $match[1];         
+            if(!preg_match_all($regex, $content, $match)){
+                return $rtn;
+            }
+            if(count($matches)){
+                $matches = array_intersect($matches, $match[1]);
+                if(!count($matches)){
+                    return $rtn;
+                }
+            }else{
+                $matches = $match[1];  
             }
         }
-        if(!count($matches)){
-            return $rtn;
-        }
-        $uMatch = $matches[0];
-        for($i=1;$i<count($matches);$i++){
-            $uMatch = array_intersect($uMatch, $matches[$i]);        
-        }
-        foreach($uMatch as $id=>$w){
+        foreach($matches as $id=>$w){
             if($id > 20){
                 break;
             }
